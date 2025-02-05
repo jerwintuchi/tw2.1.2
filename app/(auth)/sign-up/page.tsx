@@ -4,7 +4,7 @@ import { SubmitButton } from "@/components/submit-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import Link from "next/link";
-import { SmtpMessage } from "../smtp-message";
+
 
 export default async function Signup(props: {
   searchParams: Promise<Message>;
@@ -22,13 +22,16 @@ export default async function Signup(props: {
     <>
       <form className="flex flex-col min-w-64 max-w-64 mx-auto">
         <h1 className="text-2xl font-medium">Sign up</h1>
-        <p className="text-sm text text-foreground">
-          Already have an account?{" "}
-          <Link className="text-primary font-medium underline" href="/sign-in">
-            Sign in
-          </Link>
-        </p>
         <div className="flex flex-col gap-2 [&>input]:mb-3 mt-8">
+          {/*-----------------USERNAME ------------------------ */}
+          <Label htmlFor="username">Username</Label>
+          <Input
+            name="username"
+            placeholder="Your username"
+            minLength={6}
+            maxLength={12}
+            required />
+          {/*-----------------EMAIL AND PASSWORD ------------------------ */}
           <Label htmlFor="email">Email</Label>
           <Input name="email" placeholder="you@example.com" required />
           <Label htmlFor="password">Password</Label>
@@ -44,8 +47,13 @@ export default async function Signup(props: {
           </SubmitButton>
           <FormMessage message={searchParams} />
         </div>
+        <p className="text-sm text text-foreground self-end">
+          Already have an account?{" "}
+          <Link className="text-primary font-medium underline pl-2" href="/sign-in">
+            Sign in
+          </Link>
+        </p>
       </form>
-      <SmtpMessage />
     </>
   );
 }

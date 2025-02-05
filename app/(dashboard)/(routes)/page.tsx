@@ -1,0 +1,17 @@
+
+import { createClient } from "@/utils/supabase/server";
+import HomePage from "./_components/HomePage";
+import LandingPage from "./_components/LandingPage";
+
+export default async function ProtectedPage() {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+
+  return user ?
+    <HomePage user={user} /> : <LandingPage />
+
+}
