@@ -1,6 +1,6 @@
 "use client";
+// components/NavLinks/NavLinks.tsx
 
-import Link from "next/link";
 import { useState } from "react";
 import { HiMenu, HiX } from "react-icons/hi";
 import { LuListTodo } from "react-icons/lu";
@@ -11,8 +11,10 @@ import { AiFillFileMarkdown } from "react-icons/ai";
 
 import DesktopNavLinks from "./DesktopNavLinks";
 import MobileNavLinks from "./MobileNavLinks";
+import { NavLink } from "@/app/types/type-definitions";
 
-const navLinks = [
+
+const navLinks: NavLink[] = [
     {
         href: "/todos",
         label: "Todo",
