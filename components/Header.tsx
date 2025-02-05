@@ -1,45 +1,61 @@
-
-import React from 'react'
-import { IoAppsSharp } from 'react-icons/io5'
-import { ThemeSwitcher } from './theme-switcher'
-import { getUser } from '@/utils/supabase/user-helpers';
-import SignOutButton from './buttons/signout-button';
-
+import React from "react";
+import { IoAppsSharp } from "react-icons/io5";
+import { ThemeSwitcher } from "./theme-switcher";
+import { getUser } from "@/utils/supabase/user-helpers";
+import SignOutButton from "./buttons/signout-button";
+import Link from "next/link";
+import NavLinks from "./NavLinks";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`
     : "http://localhost:3000";
-//get user login status
 
 export default async function Header() {
-    //render SignIn/SignUp button dynamically based on route
-
     const user = await getUser();
+
     return (
-        <div className="sticky top-0 z-50 w-full dark:bg-background bg-white">
-            {/* Navigation Bar */}
-            <div className="w-full border-b flex flex-row items-center h-16 px-8 ">
-                <div className='flex flex-row hover:text-green-500 hover:cursor-grab hover:opacity-75  dark:hover:text-green-400 transition-opacity'>
-                    <IoAppsSharp size={36} className='mr-2' />
-                    {/* Left - App Title */}
-                    <div className="font-semibold text-4xl">
-                        <a href={defaultUrl}>TW 2.1.2
-                        </a>
+        <header className="sticky top-0 z-50 w-full dark:bg-background bg-white shadow-md">
+            <nav className="w-full border-b flex items-center h-16 px-4 sm:px-8">
+                {/* Left - Logo & Title */}
+                <div className="flex items-center">
+                    <IoAppsSharp size={36} className="mr-2 text-green-500" />
+                    <Link href={"/"} className="text-2xl font-bold hover:text-green-500 transition ">
+                        <div className="font-semibold sm:text-4xl text-lg">
+                            TW 2.1.2
+                        </div>
+                    </Link>
+                </div>
+
+                {/* Center - Navigation Links (Only for Desktop) */}
+                {user && (
+                    <div className="hidden md:flex flex-1 justify-center">
+                        <NavLinks />
+                    </div>
+                )}
+
+                {/* Right - Theme Switcher, Sign Out Button, & Hamburger Button */}
+                <div className="flex items-center ml-auto space-x-2 md:space-x-2">
+                    {/* ThemeSwitcher */}
+                    <ThemeSwitcher />
+
+                    {/* Sign Out or Sign In Button */}
+                    {user ? (
+                        <SignOutButton />
+                    ) : (
+                        <Link
+                            href="/sign-in"
+                            className="px-4 py-2 border rounded-lg hover:bg-green-500 hover:text-white transition"
+                        >
+                            Sign In
+                        </Link>
+                    )}
+
+                    {/* Mobile Hamburger Menu Button (Only on Mobile) */}
+                    <div className="md:hidden flex items-center">
+                        {user && <NavLinks />}
                     </div>
                 </div>
-                {/* Push ThemeSwitcher to the right */}
-                <div className=" flex flex-row ml-auto gap-2">
-
-                    {
-                        user && (
-                            <SignOutButton />
-                        )
-                    }
-
-
-                    <ThemeSwitcher />
-                </div>
-            </div>
-        </div>
-    )
+            </nav>
+        </header>
+    );
 }
