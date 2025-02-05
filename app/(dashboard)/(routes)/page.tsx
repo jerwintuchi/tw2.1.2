@@ -10,7 +10,7 @@ export default async function ProtectedPage() {
     data: { user },
   } = await supabase.auth.getUser();
 
-
+  console.log("user", user);
   return user ?
     <HomePage user={user} /> : <LandingPage />
 
