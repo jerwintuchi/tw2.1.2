@@ -4,7 +4,7 @@ import { ThemeSwitcher } from "./theme-switcher";
 import { getUser } from "@/utils/supabase/user-helpers";
 import SignOutButton from "./buttons/signout-button";
 import Link from "next/link";
-import NavLinks from "./NavLinks";
+import NavLinks from "./NavLinks/NavLinks";
 
 const defaultUrl = process.env.VERCEL_URL
     ? `https://${process.env.VERCEL_URL}`

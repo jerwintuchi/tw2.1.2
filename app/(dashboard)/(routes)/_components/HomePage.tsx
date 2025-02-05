@@ -9,6 +9,20 @@ interface HomePageProps {
 export default function HomePage({ user }: HomePageProps) {
     return (
         <div className="flex-1 w-full flex flex-col gap-12 px-6 py-8 bg-gray-100 dark:bg-background">
+            {/* Call to Action Section */}
+            <div className="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg shadow-md border border-blue-200 dark:border-blue-700">
+                <div className="flex items-center gap-4">
+                    <InfoIcon size={36} className="text-blue-500 dark:text-blue-300" />
+                    <div>
+                        <h4 className="font-semibold text-xl text-gray-800 dark:text-white">
+                            Explore Features
+                        </h4>
+                        <p className="text-gray-600 dark:text-gray-400">
+                            Check out the the features of this web app by navigating to the pages on the navbar.
+                        </p>
+                    </div>
+                </div>
+            </div>
             {/* Welcome Section */}
             <div className="flex flex-col gap-4 items-start">
                 <h2 className="font-bold text-3xl mb-4 text-gray-900 dark:text-white">
@@ -37,20 +51,6 @@ export default function HomePage({ user }: HomePageProps) {
                 </div>
             </div>
 
-            {/* Call to Action Section */}
-            <div className="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg shadow-md border border-blue-200 dark:border-blue-700">
-                <div className="flex items-center gap-4">
-                    <InfoIcon size={36} className="text-blue-500 dark:text-blue-300" />
-                    <div>
-                        <h4 className="font-semibold text-xl text-gray-800 dark:text-white">
-                            Explore Features
-                        </h4>
-                        <p className="text-gray-600 dark:text-gray-400">
-                            Check out the the features of this web app by navigating to the pages on the navbar.
-                        </p>
-                    </div>
-                </div>
-            </div>
         </div>
     );
 }
