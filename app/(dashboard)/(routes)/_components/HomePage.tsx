@@ -8,7 +8,7 @@ interface HomePageProps {
 
 export default function HomePage({ user }: HomePageProps) {
     return (
-        <div className="flex-1 w-full flex flex-col gap-12 px-6 py-8 bg-gray-100 dark:bg-background">
+        <div className="flex-1 w-full flex flex-col gap-12 px-6 py-8 bg-white dark:bg-background">
             {/* Call to Action Section */}
             <div className="bg-blue-50 dark:bg-blue-900 p-6 rounded-lg shadow-md border border-blue-200 dark:border-blue-700">
                 <div className="flex items-center gap-4">
@@ -26,7 +26,7 @@ export default function HomePage({ user }: HomePageProps) {
             {/* Welcome Section */}
             <div className="flex flex-col gap-4 items-start">
                 <h2 className="font-bold text-3xl mb-4 text-gray-900 dark:text-white">
-                    Welcome back, {user?.user_metadata?.full_name || 'User'}!
+                    Welcome back, {'User'}!
                 </h2>
                 <p className="text-lg text-gray-700 dark:text-gray-400">
                     We're glad to have you back. Here's a summary of your account.
