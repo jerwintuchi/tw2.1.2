@@ -50,7 +50,7 @@ export function usePhotoManager(userId: string) {
         );
         return;
       }
-
+      
       const fileName = `${Date.now()}_${file.name}`;
       const filePath = `drive/${fileName}`;
       const { error: uploadError } = await supabase.storage
