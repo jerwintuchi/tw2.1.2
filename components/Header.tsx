@@ -12,7 +12,7 @@ const defaultUrl = process.env.VERCEL_URL
 
 export default async function Header() {
     const user = await getUser();
-
+    
     return (
         <header className="sticky top-0 z-50 w-full dark:bg-background bg-white shadow-md">
             <nav className="w-full border-b flex items-center h-16 px-4 sm:px-8">
