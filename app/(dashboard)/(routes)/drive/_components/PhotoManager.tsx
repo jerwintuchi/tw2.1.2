@@ -15,7 +15,7 @@ export default function PhotoManager({ user }: { user: any }) {
         setSearch,
         sortType,
         setSortType,
-        uploadPhoto,
+        uploadPhotos,
         deletePhoto,
     } = usePhotoManager(user.id)
 
@@ -23,7 +23,7 @@ export default function PhotoManager({ user }: { user: any }) {
         <div className="flex flex-col gap-4 max-w-full mx-auto p-4">
             <h2 className="text-xl font-bold text-center">Manage your Photos</h2>
 
-            <PhotoUploader uploading={uploading} uploadPhoto={uploadPhoto} />
+            <PhotoUploader uploading={uploading} uploadPhotos={uploadPhotos} />
 
             <Input
                 type="text"
