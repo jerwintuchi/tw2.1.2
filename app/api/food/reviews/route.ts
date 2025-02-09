@@ -44,7 +44,7 @@ export async function GET(req: Request) {
       })),
       {
         status: 200,
-        headers: { "Cache-Control": "public, max-age=60" }, // Cache for 1 minute
+        headers: { "Cache-Control": "no-store, must-revalidate" },
       }
     );
   } catch (err) {
@@ -93,7 +93,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json(data[0], { status: 201 });
+    return NextResponse.json({ status: 201 });
   } catch (err) {
     console.error("Unexpected API Error:", err);
     return NextResponse.json(
