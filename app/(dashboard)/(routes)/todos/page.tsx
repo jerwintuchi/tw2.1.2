@@ -1,6 +1,6 @@
 import React from 'react'
 import TodoList from './_components/TodoList'
-import { getUser } from '@/utils/supabase/user-helpers'
+import { getUser } from '@/utils/supabase/user-helpers-server'
 
 export default async function TodosPage() {
   const user = await getUser()

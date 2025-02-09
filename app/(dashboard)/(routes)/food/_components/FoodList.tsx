@@ -41,10 +41,10 @@ export default function FoodList({ userId, photos, deletePhoto }: FoodListProps)
                                 variant="destructive"
                                 onClick={() => deletePhoto(photo.id, photo.photo_url)}
                             >
-                                <FaTrash size={16} /> Delete
+                                <FaTrash className="mr-2" size={16} /> Delete
                             </Button>
                             <Button onClick={() => setSelectedPhoto(photo.id)}>
-                                <FaStar size={16} /> Reviews
+                                <FaStar className="mr-2" size={16} /> Reviews
                             </Button>
                         </div>
                     </CardContent>

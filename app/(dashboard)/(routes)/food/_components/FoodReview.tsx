@@ -2,6 +2,8 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { getUserName } from "@/utils/supabase/user-helper-client";
+
 import { useEffect, useState } from "react";
 import { FaStar, FaTrash, FaTimes } from "react-icons/fa";
 
@@ -24,7 +26,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
     const [newReview, setNewReview] = useState("");
     const [rating, setRating] = useState(5);
     const [loading, setLoading] = useState(false);
-
+    const [username, setUsername] = useState("");
     useEffect(() => {
         const fetchReviews = async () => {
             if (!foodPhotoId) return;
@@ -44,7 +46,17 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                 console.error("Error fetching reviews:", error);
             }
         };
-
+        const fetchUsername = async () => {
+            try {
+                const username = await getUserName(userId);
+                if (!username) return;
+                setUsername(username);
+                console.log("username", username);
+            } catch (error) {
+                console.error("Error fetching username:", error);
+            }
+        };
+        fetchUsername();
         fetchReviews();
     }, [foodPhotoId]);
 
@@ -89,8 +101,8 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-            <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
-                <button onClick={close} className="absolute top-2 right-2">
+            <div className="bg-white dark:bg-black rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                <button onClick={close} className="absolute top-2 right-2 dark:text-red-800 dark:hover:text-red-500">
                     <FaTimes size={18} />
                 </button>
                 <h2 className="text-lg font-bold mb-4">Reviews</h2>
@@ -102,11 +114,12 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                         value={newReview}
                         onChange={(e) => setNewReview(e.target.value)}
                     />
-                    <div className="flex gap-2">
+                    <div className="flex justify-evenly gap-2 p-4">
+                        <p className="flex dark:text-white">How many Stars?</p>
                         {[1, 2, 3, 4, 5].map((star) => (
                             <FaStar
                                 key={star}
-                                className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                                className={`flex cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
                                 onClick={() => setRating(star)}
                             />
                         ))}
@@ -118,23 +131,26 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
 
                 {/* List of Reviews */}
                 <div className="mt-4 max-h-60 overflow-y-auto">
+                    <span className="text-gray-500">Reviews:</span>
                     {reviews.length > 0 ? (
                         reviews.map((review) => (
                             <div key={review.id} className="border-b py-2 flex justify-between items-center">
                                 <div>
-                                    <p className="text-sm">{review.review}</p>
+                                    <p className="text-sm dark:text-white">{review.review}</p>
                                     <div className="flex gap-1 text-yellow-500">
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <FaStar key={i} />
                                         ))}
                                     </div>
-                                    <span className="text-xs text-gray-500">
+                                    <span className="flex flex-row text-xs text-gray-500">
+                                        <p className="flex pr-1">Review by {username} on </p>
                                         {new Date(review.created_at).toLocaleDateString()}
                                     </span>
                                 </div>
-                                <button onClick={() => deleteReview(review.id)} className="text-red-500">
+                                {/* Only render the delete button for the user who created the review */}
+                                {userId === review.user_id && <button onClick={() => deleteReview(review.id)} className="text-red-500 ">
                                     <FaTrash />
-                                </button>
+                                </button>}
                             </div>
                         ))
                     ) : (

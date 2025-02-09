@@ -31,7 +31,7 @@ export default function FoodReviewManager({ user }: { user: User }) {
 
             <Input
                 type="text"
-                placeholder="Search by photo name..."
+                placeholder="Search by food name..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />

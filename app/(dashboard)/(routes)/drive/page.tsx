@@ -1,6 +1,6 @@
 // app/drive/page.tsx (Server Component)
 
-import { getUser } from "@/utils/supabase/user-helpers";
+import { getUser } from "@/utils/supabase/user-helpers-server";
 import PhotoManager from "./_components/PhotoManager";
 
 

@@ -34,6 +34,10 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
     fetchPhotos();
   }, [userId, sortType]);
 
+  const filteredPhotos = photos.filter((photo) =>
+    photo.photo_name.toLowerCase().includes(search.toLowerCase())
+  );
+
   const uploadPhotos = async (files: FileList) => {
     try {
       setUploading(true);
@@ -95,7 +99,7 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
   };
 
   return {
-    photos,
+    photos: filteredPhotos,
     uploading,
     search,
     setSearch,
