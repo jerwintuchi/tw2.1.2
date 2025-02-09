@@ -24,7 +24,22 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
     const [newReview, setNewReview] = useState("");
     const [rating, setRating] = useState(5);
     const [loading, setLoading] = useState(false);
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
     const hasFetched = useRef(false); // Prevent duplicate fetching
+
+    // Detect if the keyboard is open on mobile
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerHeight < 500) {
+                setKeyboardOpen(true);
+            } else {
+                setKeyboardOpen(false);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     // Fetch reviews only ONCE when foodPhotoId is available
     useEffect(() => {
@@ -47,7 +62,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
         fetchReviews();
     }, [foodPhotoId]);
 
-    //  Submit review & refetch reviews AFTER adding
+    // Submit review & refetch reviews AFTER adding
     const submitReview = async () => {
         if (!newReview.trim()) return alert("Review cannot be empty");
 
@@ -75,14 +90,14 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
         }
     };
 
-    //  Delete review & refetch reviews AFTER deletion
+    // Delete review & refetch reviews AFTER deletion
     const deleteReview = async (id: string) => {
         try {
             const response = await fetch(`/api/food/reviews?id=${id}`, { method: "DELETE" });
 
             if (!response.ok) throw new Error("Failed to delete review");
 
-            //  Refetch reviews after deletion
+            // Refetch reviews after deletion
             const updatedResponse = await fetch(`/api/food/reviews?foodPhotoId=${foodPhotoId}`);
             const updatedData = await updatedResponse.json();
             setReviews(updatedData);
@@ -93,7 +108,10 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
 
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
-            <div className="bg-white dark:bg-black rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+            <div
+                className={`bg-white dark:bg-black rounded-lg shadow-lg w-full max-w-lg p-6 relative transition-all duration-300 ${keyboardOpen ? "h-[80vh]" : "h-auto"
+                    }`}
+            >
                 <button onClick={close} className="absolute top-2 right-2 dark:text-red-800 dark:hover:text-red-500">
                     <FaTimes size={18} />
                 </button>
@@ -105,43 +123,44 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                         placeholder="Write your review..."
                         value={newReview}
                         onChange={(e) => setNewReview(e.target.value)}
+                        className="w-full p-2 border rounded-lg dark:bg-gray-800 dark:text-white"
                     />
                     <div className="flex justify-evenly gap-2 p-4">
-                        <p className="flex dark:text-white">How many Stars?</p>
+                        <p className="text-gray-700 dark:text-white">How many Stars?</p>
                         {[1, 2, 3, 4, 5].map((star) => (
                             <FaStar
                                 key={star}
-                                className={`flex cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                                className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
                                 onClick={() => setRating(star)}
                             />
                         ))}
                     </div>
-                    <Button onClick={submitReview} disabled={loading}>
+                    <Button onClick={submitReview} disabled={loading} className="bg-blue-500 text-white">
                         {loading ? "Submitting..." : "Submit Review"}
                     </Button>
                 </div>
 
                 {/* List of Reviews */}
-                <div className="mt-4 max-h-60 overflow-y-auto">
+                <div hidden={keyboardOpen} className="mt-4 max-h-60 overflow-y-auto">
                     <span className="text-gray-500">Reviews:</span>
                     {reviews.length > 0 ? (
                         reviews.map((review) => (
                             <div key={review.id} className="border-b py-2 flex justify-between items-center">
                                 <div>
-                                    <p className="text-sm dark:text-white">{review.review}</p>
+                                    <p className="text-sm text-gray-800 dark:text-white">{review.review}</p>
                                     <div className="flex gap-1 text-yellow-500 pb-2">
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <FaStar key={`${review.id}-star-${i}`} />
                                         ))}
                                     </div>
-                                    <span className="flex flex-row text-xs text-gray-500">
-                                        <p className="flex pr-1">Review by {review.username} on </p>
+                                    <span className="text-xs text-gray-500">
+                                        Review by <span className="font-semibold">{review.username}</span> on{" "}
                                         {new Date(review.created_at).toLocaleDateString()}
                                     </span>
                                 </div>
                                 {/* Only render the delete button for the user who created the review */}
                                 {userId === review.user_id && (
-                                    <button onClick={() => deleteReview(review.id)} className="text-red-500 hover:text-red-900 pr-2">
+                                    <button onClick={() => deleteReview(review.id)} className="text-red-500 hover:text-red-900 pr-4">
                                         <FaTrash />
                                     </button>
                                 )}
