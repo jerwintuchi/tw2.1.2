@@ -1,4 +1,5 @@
 "use client";
+import { ValidRoutes } from "@/app/types/type-definitions";
 import { useState, useEffect } from "react";
 
 interface Photo {
@@ -9,7 +10,7 @@ interface Photo {
   created_at: string;
 }
 
-export function usePhotoManager(userId: string) {
+export function usePhoto(userId: string, apiRoute: ValidRoutes) {
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [uploading, setUploading] = useState(false);
   const [search, setSearch] = useState("");
@@ -20,7 +21,7 @@ export function usePhotoManager(userId: string) {
       if (!userId) return;
       try {
         const response = await fetch(
-          `/api/photos?userId=${userId}&sortType=${sortType}`
+          `/api/${apiRoute}?userId=${userId}&sortType=${sortType}`
         );
         const data = await response.json();
         if (!data) throw new Error("No data");
@@ -58,7 +59,7 @@ export function usePhotoManager(userId: string) {
         formData.append("files", file);
       });
 
-      const response = await fetch("/api/photos", {
+      const response = await fetch(`/api/${apiRoute}`, {
         method: "POST",
         body: formData,
       });
@@ -78,7 +79,7 @@ export function usePhotoManager(userId: string) {
   const deletePhoto = async (id: string, photo_url: string) => {
     try {
       const response = await fetch(
-        `/api/photos?id=${id}&photo_url=${photo_url}`,
+        `/api/${apiRoute}?id=${id}&photo_url=${photo_url}`,
         {
           method: "DELETE",
         }

@@ -5,12 +5,13 @@ import { Input } from "@/components/ui/input"
 
 import { FaSortAlphaDown, FaSortNumericDown } from "react-icons/fa"
 
-import { usePhotoManager } from "../../../../../utils/photo-hook/usePhotos";
+import { usePhoto } from "../../../../../utils/photo-hook/usePhoto";
 import { PhotoUploader } from "../../drive/_components/PhotoUploader";
 import FoodList from "./FoodList";
+import { User } from "@supabase/supabase-js";
 
 
-export default function FoodReviewManager({ user }: { user: any }) {
+export default function FoodReviewManager({ user }: { user: User }) {
     const {
         photos,
         uploading,
@@ -20,7 +21,7 @@ export default function FoodReviewManager({ user }: { user: any }) {
         setSortType,
         uploadPhotos,
         deletePhoto,
-    } = usePhotoManager(user.id)
+    } = usePhoto(user.id, "food_photos");
 
     return (
         <div className="flex flex-col gap-4 max-w-full mx-auto p-4">

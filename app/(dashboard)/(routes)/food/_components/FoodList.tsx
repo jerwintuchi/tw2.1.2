@@ -6,6 +6,6 @@ interface FoodListProps {
 
 export default function FoodList({ photos, deletePhoto }: FoodListProps) {
     return (
-        <div>FoodList</div>
+        <div className="">FoodList</div>
     )
 }
