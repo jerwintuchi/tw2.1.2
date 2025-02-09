@@ -1,95 +1,101 @@
-"use client"
+"use client";
 
-import { useState, useEffect } from "react"
-import type { User } from "@supabase/supabase-js"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Trash2, Pencil } from "lucide-react"
-import { createClient } from "@/utils/supabase/client"
-import { FaSquareCheck } from "react-icons/fa6"
+import { useState, useEffect, useCallback, useMemo } from "react";
+import type { User } from "@supabase/supabase-js";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Trash2, Pencil } from "lucide-react";
+import { createClient } from "@/utils/supabase/client";
+import { FaSquareCheck } from "react-icons/fa6";
 
 interface Todo {
-  id: string
-  user_id: string
-  task: string
-  completed: boolean
-  created_at: string
-  updated_at: string
+  id: string;
+  user_id: string;
+  task: string;
+  completed: boolean;
+  created_at: string;
+  updated_at: string;
 }
 
 interface TodoListProps {
-  user: User
+  user: User;
 }
 
 export default function TodoList({ user }: TodoListProps) {
-  const [todos, setTodos] = useState<Todo[]>([])
-  const [newTask, setNewTask] = useState("")
-  const [loading, setLoading] = useState(false)
-  const [editingId, setEditingId] = useState<string | null>(null)
-  const [editText, setEditText] = useState("")
+  const [todos, setTodos] = useState<Todo[]>([]);
+  const [newTask, setNewTask] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editText, setEditText] = useState("");
 
-  const supabase = createClient()
+  const supabase = useMemo(() => createClient(), []);
 
+  // Fetch Todos (Runs once when component mounts)
   useEffect(() => {
     const fetchTodos = async () => {
       const { data, error } = await supabase
         .from("todos")
         .select("*")
         .eq("user_id", user.id)
-        .order("created_at", { ascending: false })
+        .order("created_at", { ascending: false });
 
-      if (error) console.error("Error fetching todos:", error)
-      else setTodos(data || [])
-    }
+      if (error) console.error("Error fetching todos:", error);
+      else setTodos(data || []);
+    };
 
-    fetchTodos()
-  }, [user.id, supabase]) // Added supabase to dependencies
+    fetchTodos();
+  }, [user.id, supabase]);
 
-  const addTodo = async () => {
-    if (!newTask.trim()) return
-    setLoading(true)
+  // Add a new task
+  const addTodo = useCallback(async () => {
+    if (!newTask.trim()) return;
+    setLoading(true);
 
     const { data, error } = await supabase
       .from("todos")
       .insert([{ task: newTask, completed: false, user_id: user.id }])
       .select()
-      .single()
+      .single();
 
-    if (error) console.error("Error adding task:", error)
-    else setTodos((prev) => [data, ...prev])
+    if (error) console.error("Error adding task:", error);
+    else setTodos((prev) => [data, ...prev]);
 
-    setNewTask("")
-    setLoading(false)
-  }
+    setNewTask("");
+    setLoading(false);
+  }, [newTask, supabase, user.id]);
 
-  const toggleComplete = async (id: string, completed: boolean) => {
-    const { error } = await supabase.from("todos").update({ completed: !completed }).eq("id", id)
+  // Toggle task completion
+  const toggleComplete = useCallback(async (id: string, completed: boolean) => {
+    const { error } = await supabase.from("todos").update({ completed: !completed }).eq("id", id);
 
-    if (error) console.error("Error updating task:", error)
-    else setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, completed: !completed } : todo)))
-  }
+    if (error) console.error("Error updating task:", error);
+    else setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, completed: !completed } : todo)));
+  }, [supabase]);
 
-  const deleteTodo = async (id: string) => {
-    const { error } = await supabase.from("todos").delete().eq("id", id)
-    if (error) console.error("Error deleting task:", error)
-    else setTodos((prev) => prev.filter((todo) => todo.id !== id))
-  }
+  // Delete a task
+  const deleteTodo = useCallback(async (id: string) => {
+    const { error } = await supabase.from("todos").delete().eq("id", id);
+    if (error) console.error("Error deleting task:", error);
+    else setTodos((prev) => prev.filter((todo) => todo.id !== id));
+  }, [supabase]);
 
-  const startEditing = (id: string, task: string) => {
-    setEditingId(id)
-    setEditText(task)
-  }
+  // Start editing a task
+  const startEditing = useCallback((id: string, task: string) => {
+    setEditingId(id);
+    setEditText(task);
+  }, []);
 
-  const updateTodo = async (id: string) => {
-    if (!editText.trim()) return
-    const { error } = await supabase.from("todos").update({ task: editText }).eq("id", id)
+  // Update a task
+  const updateTodo = useCallback(async (id: string) => {
+    if (!editText.trim()) return;
+    const { error } = await supabase.from("todos").update({ task: editText }).eq("id", id);
 
-    if (error) console.error("Error updating task:", error)
+    if (error) console.error("Error updating task:", error);
     else {
-      setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, task: editText } : todo)))
-      setEditingId(null)
+      setTodos((prev) => prev.map((todo) => (todo.id === id ? { ...todo, task: editText } : todo)));
+      setEditingId(null);
     }
-  }
+  }, [editText, supabase]);
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-full sm:max-w-md lg:max-w-lg mx-auto px-2 sm:px-4">
@@ -173,5 +179,5 @@ export default function TodoList({ user }: TodoListProps) {
         ))}
       </ul>
     </div>
-  )
+  );
 }
