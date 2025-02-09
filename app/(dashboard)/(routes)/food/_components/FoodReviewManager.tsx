@@ -4,12 +4,13 @@ import { Input } from "@/components/ui/input"
 
 
 import { FaSortAlphaDown, FaSortNumericDown } from "react-icons/fa"
-import { PhotoUploader } from "./PhotoUploader";
-import { PhotoList } from "./PhotoList";
+
 import { usePhotoManager } from "../../../../../utils/photo-hook/usePhotos";
+import { PhotoUploader } from "../../drive/_components/PhotoUploader";
+import FoodList from "./FoodList";
 
 
-export default function PhotoManager({ user }: { user: any }) {
+export default function FoodReviewManager({ user }: { user: any }) {
     const {
         photos,
         uploading,
@@ -43,7 +44,7 @@ export default function PhotoManager({ user }: { user: any }) {
                 </Button>
             </div>
 
-            <PhotoList photos={photos} deletePhoto={deletePhoto} />
+            <FoodList photos={photos} deletePhoto={deletePhoto} />
         </div>
     )
 }

@@ -9,7 +9,7 @@ interface PhotoListProps {
     deletePhoto: (id: string, photo_url: string) => void
 }
 
-export const PhotoList: React.FC<PhotoListProps> = ({ photos, deletePhoto }) => {
+export const PhotoList = ({ photos, deletePhoto }: PhotoListProps) => {
     return (
         <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {photos.map((photo) => (

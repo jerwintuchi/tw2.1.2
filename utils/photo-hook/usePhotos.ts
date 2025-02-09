@@ -38,8 +38,23 @@ export function usePhotoManager(userId: string) {
       setUploading(true);
       const formData = new FormData();
 
-      formData.append("userId", userId); // add the userId to the form data
-      Array.from(files).forEach((file) => {
+      formData.append("userId", userId);
+
+      const existingPhotoNames = new Set(
+        photos.map((photo) => photo.photo_name)
+      );
+
+      const filteredFiles = Array.from(files).filter(
+        (file) => !existingPhotoNames.has(file.name) // Prevent duplicate name uploads
+      );
+
+      if (filteredFiles.length === 0) {
+        alert("That file(s) is already uploaded.");
+        setUploading(false);
+        return;
+      }
+
+      filteredFiles.forEach((file) => {
         formData.append("files", file);
       });
 
@@ -52,7 +67,6 @@ export function usePhotoManager(userId: string) {
 
       const data = await response.json();
       const newPhotos = data as Photo[];
-
       setPhotos((prev) => [...newPhotos, ...prev]);
     } catch (error: any) {
       alert(error.message);
