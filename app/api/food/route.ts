@@ -7,17 +7,12 @@ import { createClient } from "@/utils/supabase/server";
 export async function GET(req: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
-  const userId = searchParams.get("userId");
   const sortType = searchParams.get("sortType") || "date";
 
-  if (!userId) {
-    return NextResponse.json({ error: "Missing user ID" }, { status: 400 });
-  }
   //fetch photos from food_photos table
   const { data, error } = await supabase
     .from(`food_photos`)
     .select("*")
-    .eq("user_id", userId)
     .order(sortType === "name" ? "photo_name" : "created_at", {
       ascending: true,
     });
