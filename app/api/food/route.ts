@@ -2,15 +2,14 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-// GET: Fetch photos for a user
+// 🚀 GET: Fetch photos efficiently
 export async function GET(req: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
   const sortType = searchParams.get("sortType") || "date";
 
-  //fetch photos from food_photos table
   const { data, error } = await supabase
-    .from(`food_photos`)
+    .from("food_photos")
     .select("*")
     .order(sortType === "name" ? "photo_name" : "created_at", {
       ascending: true,
@@ -19,91 +18,83 @@ export async function GET(req: Request) {
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json(data, { status: 200 });
+  // cache headers
+  return NextResponse.json(data, {
+    status: 200,
+    headers: {
+      "Cache-Control": "public, max-age=300", // Cache for 5 minutes
+    },
+  });
 }
 
-// POST: Upload new photos (multiple files)
+// POST: Upload photos in parallel using Promise.all()
 export async function POST(req: Request) {
   const supabase = await createClient();
   const formData = await req.formData();
-  const userId = formData.get("userId") as string; // casted to string since it is of type FormDataEntryValue
-
-  if (!userId) {
-    return NextResponse.json({ error: "User ID is required" }, { status: 400 });
-  }
-
+  const userId = formData.get("userId") as string;
   const files = formData.getAll("files") as File[];
 
-  if (!files.length) {
-    return NextResponse.json({ error: "No files uploaded" }, { status: 400 });
+  if (!userId || !files.length) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 }
+    );
   }
 
-  const uploadedPhotos = [];
+  const uploadedPhotos = await Promise.all(
+    files.map(async (file) => {
+      const fileName = `${Date.now()}_${file.name}`;
+      const filePath = `drive/${fileName}`;
 
-  for (const file of files) {
-    const fileName = `${Date.now()}_${file.name}`;
-    const filePath = `drive/${fileName}`;
-    //upload files into 'photos' storage bucket
-    const { error: uploadError } = await supabase.storage
-      .from("photos")
-      .upload(filePath, file);
+      const { error: uploadError } = await supabase.storage
+        .from("photos")
+        .upload(filePath, file);
 
-    if (uploadError) {
-      return NextResponse.json({ error: uploadError.message }, { status: 500 });
-    }
-    //insert data into 'photos' table
-    const { data, error } = await supabase
-      .from(`food_photos`)
-      .insert([{ user_id: userId, photo_name: file.name, photo_url: filePath }])
-      .select()
-      .single();
+      if (uploadError) throw new Error(uploadError.message);
 
-    if (error) {
-      return NextResponse.json({ error: error.message }, { status: 500 });
-    }
+      const { data, error } = await supabase
+        .from("food_photos")
+        .insert([
+          { user_id: userId, photo_name: file.name, photo_url: filePath },
+        ])
+        .select();
 
-    uploadedPhotos.push(data);
-  }
+      if (error) throw new Error(error.message);
+
+      return data[0];
+    })
+  );
 
   return NextResponse.json(uploadedPhotos, { status: 200 });
 }
 
-// DELETE: Delete a photo by ID
+// DELETE: Batch delete photos to minimize API calls
 export async function DELETE(req: Request) {
   const supabase = await createClient();
   const { searchParams } = new URL(req.url);
-  const id = searchParams.get("id");
-  const photoUrl = searchParams.get("photo_url");
+  const ids = searchParams.getAll("id");
+  const photoUrls = searchParams.getAll("photo_url");
 
-  if (!id || !photoUrl) {
+  if (!ids.length || !photoUrls.length) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
-  //delete from 'photos' storage bucket
-  const { error: deleteStorageError } = await supabase.storage
-    .from("photos")
-    .remove([photoUrl]);
 
-  if (deleteStorageError) {
+  const deleteStorage = supabase.storage.from("photos").remove(photoUrls);
+  const deleteDb = supabase.from("food_photos").delete().in("id", ids);
+
+  const [{ error: deleteStorageError }, { error: deleteDbError }] =
+    await Promise.all([deleteStorage, deleteDb]);
+
+  if (deleteStorageError || deleteDbError) {
     return NextResponse.json(
-      { error: deleteStorageError.message },
+      { error: "Failed to delete photos" },
       { status: 500 }
     );
   }
-  //delete from food_photos table
-  const { error: deleteDbError } = await supabase
-    .from("food_photos")
-    .delete()
-    .eq("id", id);
-
-  if (deleteDbError) {
-    return NextResponse.json({ error: deleteDbError.message }, { status: 500 });
-  }
 
   return NextResponse.json(
-    { message: "Photo deleted successfully" },
-    {
-      status: 200,
-    }
+    { message: "Photos deleted successfully" },
+    { status: 200 }
   );
 }
 
@@ -115,13 +106,12 @@ export async function PATCH(req: Request) {
   if (!id || !newName) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
-  console.log("id", id, "newName", newName);
+
   const { data, error } = await supabase
     .from("food_photos")
     .update({ photo_name: newName })
     .eq("id", id)
-    .select()
-    .single();
+    .select();
 
   if (error) {
     return NextResponse.json({ error: error.message }, { status: 500 });

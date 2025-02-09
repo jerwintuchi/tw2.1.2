@@ -1,6 +1,7 @@
 import { createClient } from "@/utils/supabase/server";
 import { NextResponse } from "next/server";
 
+// GET: Fetch reviews
 export async function GET(req: Request) {
   try {
     const supabase = await createClient();
@@ -16,7 +17,16 @@ export async function GET(req: Request) {
 
     const { data, error } = await supabase
       .from("food_reviews")
-      .select("*")
+      .select(
+        `
+        id, 
+        user_id, 
+        review, 
+        rating, 
+        created_at, 
+        profiles (username)
+      `
+      )
       .eq("food_photo_id", foodPhotoId)
       .order("created_at", { ascending: false });
 
@@ -25,7 +35,18 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    return NextResponse.json(data, { status: 200 });
+    // ✅ Cache results to improve performance
+    return NextResponse.json(
+      data.map((review) => ({
+        ...review,
+        username: review.profiles?.username ?? "Unknown",
+        profiles: undefined, // Remove nested profiles object
+      })),
+      {
+        status: 200,
+        headers: { "Cache-Control": "public, max-age=60" }, // Cache for 1 minute
+      }
+    );
   } catch (err) {
     console.error("Unexpected API Error:", err);
     return NextResponse.json(
@@ -35,54 +56,41 @@ export async function GET(req: Request) {
   }
 }
 
+//  POST: Add reviews
 export async function POST(req: Request) {
   try {
     const supabase = await createClient();
-    const body = await req.json();
-
-    console.log("Received review data:", body); // Debugging
-
-    const { foodPhotoId, review, rating, userId } = body;
+    const { foodPhotoId, review, rating, userId } = await req.json();
 
     if (!foodPhotoId || !review || !rating || !userId) {
-      console.error("Missing required fields:", {
-        foodPhotoId,
-        review,
-        rating,
-        userId,
-      });
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
       );
     }
 
-    const newReview = {
-      food_photo_id: foodPhotoId,
-      user_id: userId,
-      review,
-      rating,
-      created_at: new Date().toISOString(),
-    };
-
-    console.log("Inserting review:", newReview); // For Debugging
-
     const { data, error } = await supabase
       .from("food_reviews")
-      .insert([newReview])
-      .select()
-      .single();
+      .insert([
+        {
+          food_photo_id: foodPhotoId,
+          user_id: userId,
+          review,
+          rating,
+          created_at: new Date().toISOString(),
+        },
+      ])
+      .select();
 
     if (error) {
-      console.error("Database Insert Error:", error); // For Debugging
+      console.error("Database Insert Error:", error);
       return NextResponse.json(
         { error: "Failed to add review", details: error.message },
         { status: 500 }
       );
     }
 
-    console.log("Review added successfully:", data); // Debugging
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(data[0], { status: 201 });
   } catch (err) {
     console.error("Unexpected API Error:", err);
     return NextResponse.json(
@@ -91,7 +99,6 @@ export async function POST(req: Request) {
     );
   }
 }
-
 export async function DELETE(req: Request) {
   const supabase = await createClient();
   const url = new URL(req.url);

@@ -1,8 +1,7 @@
 "use client";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { getUserName } from "@/utils/supabase/user-helper-client";
+
 
 import { useEffect, useState } from "react";
 import { FaStar, FaTrash, FaTimes } from "react-icons/fa";
@@ -13,6 +12,7 @@ interface Review {
     review: string;
     rating: number;
     created_at: string;
+    username: string;
 }
 
 interface FoodReviewProps {
@@ -26,7 +26,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
     const [newReview, setNewReview] = useState("");
     const [rating, setRating] = useState(5);
     const [loading, setLoading] = useState(false);
-    const [username, setUsername] = useState("");
+
     useEffect(() => {
         const fetchReviews = async () => {
             if (!foodPhotoId) return;
@@ -41,30 +41,36 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                 }
 
                 const data = await response.json();
-                setReviews(data);
+                console.log("Fetched Reviews from frontend:", data); // Debugging logs
+
+                // Ensure each review has a username
+                const updatedReviews = data.map((review: Review) => ({
+                    ...review,
+                    username: review.username ?? "Unknown", // Ensure username is properly extracted
+                }));
+
+
+                setReviews(updatedReviews);
             } catch (error) {
                 console.error("Error fetching reviews:", error);
             }
         };
-        const fetchUsername = async () => {
-            try {
-                const username = await getUserName(userId);
-                if (!username) return;
-                setUsername(username);
-                console.log("username", username);
-            } catch (error) {
-                console.error("Error fetching username:", error);
-            }
-        };
-        fetchUsername();
+
         fetchReviews();
     }, [foodPhotoId]);
+
 
     const submitReview = async () => {
         if (!newReview.trim()) return alert("Review cannot be empty");
 
         setLoading(true);
         try {
+            // Fetch the username of the current user
+            const userResponse = await fetch(`/api/user?userId=${userId}`);
+            const userData = await userResponse.json();
+            const username = userData?.username || "Unknown";
+
+            // Submit the new review
             const response = await fetch("/api/food/reviews", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -79,7 +85,13 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
             if (!response.ok) throw new Error("Failed to submit review");
 
             const addedReview = await response.json();
-            setReviews((prev) => [addedReview, ...prev]);
+
+            // Immediately update UI with username
+            setReviews((prev) => [
+                { ...addedReview, username }, // Inject username
+                ...prev,
+            ]);
+
             setNewReview("");
             setRating(5);
         } catch (error) {
@@ -143,7 +155,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                                         ))}
                                     </div>
                                     <span className="flex flex-row text-xs text-gray-500">
-                                        <p className="flex pr-1">Review by {username} on </p>
+                                        <p className="flex pr-1">Review by {review.username} on </p>
                                         {new Date(review.created_at).toLocaleDateString()}
                                     </span>
                                 </div>
