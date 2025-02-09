@@ -137,7 +137,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                             <div key={review.id} className="border-b py-2 flex justify-between items-center">
                                 <div>
                                     <p className="text-sm dark:text-white">{review.review}</p>
-                                    <div className="flex gap-1 text-yellow-500">
+                                    <div className="flex gap-1 text-yellow-500 pb-2">
                                         {Array.from({ length: review.rating }).map((_, i) => (
                                             <FaStar key={i} />
                                         ))}
@@ -148,7 +148,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                                     </span>
                                 </div>
                                 {/* Only render the delete button for the user who created the review */}
-                                {userId === review.user_id && <button onClick={() => deleteReview(review.id)} className="text-red-500 ">
+                                {userId === review.user_id && <button onClick={() => deleteReview(review.id)} className="text-red-500 hover:text-red-900 pr-2">
                                     <FaTrash />
                                 </button>}
                             </div>

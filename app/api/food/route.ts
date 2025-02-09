@@ -2,7 +2,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@/utils/supabase/server";
 
-
 // GET: Fetch photos for a user
 export async function GET(req: Request) {
   const supabase = await createClient();
@@ -116,9 +115,9 @@ export async function PATCH(req: Request) {
   if (!id || !newName) {
     return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
   }
-
+  console.log("id", id, "newName", newName);
   const { data, error } = await supabase
-    .from("photos")
+    .from("food_photos")
     .update({ photo_name: newName })
     .eq("id", id)
     .select()

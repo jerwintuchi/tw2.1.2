@@ -21,6 +21,7 @@ export default function FoodReviewManager({ user }: { user: User }) {
         setSortType,
         uploadPhotos,
         deletePhoto,
+        updatePhotoName
     } = usePhoto(user.id, "food");
 
     return (
@@ -45,7 +46,7 @@ export default function FoodReviewManager({ user }: { user: User }) {
                 </Button>
             </div>
 
-            <FoodList userId={user.id} photos={photos} deletePhoto={deletePhoto} />
+            <FoodList userId={user.id} photos={photos} deletePhoto={deletePhoto} updatePhotoName={updatePhotoName} />
         </div>
     )
 }

@@ -98,6 +98,32 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
     }
   };
 
+  const updatePhotoName = async (id: string, newName: string) => {
+    try {
+      const response = await fetch(
+        `/api/${apiRoute}?id=${id}&newName=${newName}`,
+        {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ id, newName }),
+        }
+      );
+
+      if (!response.ok) console.log("Failed to update photo name");
+
+      setPhotos((prev) =>
+        prev.map((photo) =>
+          photo.id === id ? { ...photo, photo_name: newName } : photo
+        )
+      );
+    } catch (error: any) {
+      console.error("Error updating photo name:", error);
+      alert(error.message);
+    }
+  };
+
   return {
     photos: filteredPhotos,
     uploading,
@@ -107,5 +133,6 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
     setSortType,
     uploadPhotos,
     deletePhoto,
+    updatePhotoName,
   };
 }
