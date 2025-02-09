@@ -21,11 +21,11 @@ export default function FoodReviewManager({ user }: { user: User }) {
         setSortType,
         uploadPhotos,
         deletePhoto,
-    } = usePhoto(user.id, "food_photos");
+    } = usePhoto(user.id, "food");
 
     return (
         <div className="flex flex-col gap-4 max-w-full mx-auto p-4">
-            <h2 className="text-xl font-bold text-center">Manage your Photos</h2>
+            <h2 className="text-xl font-bold text-center">Manage your Food Reviews</h2>
 
             <PhotoUploader uploading={uploading} uploadPhotos={uploadPhotos} />
 
@@ -45,7 +45,7 @@ export default function FoodReviewManager({ user }: { user: User }) {
                 </Button>
             </div>
 
-            <FoodList photos={photos} deletePhoto={deletePhoto} />
+            <FoodList userId={user.id} photos={photos} deletePhoto={deletePhoto} />
         </div>
     )
 }

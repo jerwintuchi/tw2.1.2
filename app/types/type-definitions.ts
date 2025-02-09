@@ -9,4 +9,4 @@ export interface NavLink {
 
 export type ValidHref = `/${string}`;
 
-export type ValidRoutes = "todos" | "photos" | "food_photos" | "pokemon_photos";
+export type ValidRoutes = "todos" | "photos" | "food" | "pokemon"; // name of the route/endpoint

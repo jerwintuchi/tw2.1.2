@@ -1,0 +1,147 @@
+"use client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useEffect, useState } from "react";
+import { FaStar, FaTrash, FaTimes } from "react-icons/fa";
+
+interface Review {
+    id: string;
+    user_id: string;
+    review: string;
+    rating: number;
+    created_at: string;
+}
+
+interface FoodReviewProps {
+    foodPhotoId: string;
+    userId: string;
+    close: () => void;
+}
+
+export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewProps) {
+    const [reviews, setReviews] = useState<Review[]>([]);
+    const [newReview, setNewReview] = useState("");
+    const [rating, setRating] = useState(5);
+    const [loading, setLoading] = useState(false);
+
+    useEffect(() => {
+        const fetchReviews = async () => {
+            if (!foodPhotoId) return;
+            try {
+                const response = await fetch(`/api/food/reviews?foodPhotoId=${foodPhotoId}`, {
+                    method: "GET",
+                });
+
+                if (!response.ok) {
+                    console.error("Error fetching reviews:", response.statusText);
+                    return;
+                }
+
+                const data = await response.json();
+                setReviews(data);
+            } catch (error) {
+                console.error("Error fetching reviews:", error);
+            }
+        };
+
+        fetchReviews();
+    }, [foodPhotoId]);
+
+    const submitReview = async () => {
+        if (!newReview.trim()) return alert("Review cannot be empty");
+
+        setLoading(true);
+        try {
+            const response = await fetch("/api/food/reviews", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    foodPhotoId,
+                    review: newReview,
+                    rating,
+                    userId,
+                }),
+            });
+
+            if (!response.ok) throw new Error("Failed to submit review");
+
+            const addedReview = await response.json();
+            setReviews((prev) => [addedReview, ...prev]);
+            setNewReview("");
+            setRating(5);
+        } catch (error) {
+            console.error("Error adding review:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const deleteReview = async (id: string) => {
+        console.log("id", id);
+        try {
+            await fetch(`/api/food/reviews?id=${id}`, { method: "DELETE" });
+            setReviews((prev) => prev.filter((review) => review.id !== id));
+        } catch (error) {
+            console.error("Error deleting review:", error);
+        }
+    };
+
+    return (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center p-4">
+            <div className="bg-white rounded-lg shadow-lg w-full max-w-lg p-6 relative">
+                <button onClick={close} className="absolute top-2 right-2">
+                    <FaTimes size={18} />
+                </button>
+                <h2 className="text-lg font-bold mb-4">Reviews</h2>
+
+                {/* Add Review */}
+                <div className="flex flex-col gap-2">
+                    <Textarea
+                        placeholder="Write your review..."
+                        value={newReview}
+                        onChange={(e) => setNewReview(e.target.value)}
+                    />
+                    <div className="flex gap-2">
+                        {[1, 2, 3, 4, 5].map((star) => (
+                            <FaStar
+                                key={star}
+                                className={`cursor-pointer ${star <= rating ? "text-yellow-500" : "text-gray-300"}`}
+                                onClick={() => setRating(star)}
+                            />
+                        ))}
+                    </div>
+                    <Button onClick={submitReview} disabled={loading}>
+                        {loading ? "Submitting..." : "Submit Review"}
+                    </Button>
+                </div>
+
+                {/* List of Reviews */}
+                <div className="mt-4 max-h-60 overflow-y-auto">
+                    {reviews.length > 0 ? (
+                        reviews.map((review) => (
+                            <div key={review.id} className="border-b py-2 flex justify-between items-center">
+                                <div>
+                                    <p className="text-sm">{review.review}</p>
+                                    <div className="flex gap-1 text-yellow-500">
+                                        {Array.from({ length: review.rating }).map((_, i) => (
+                                            <FaStar key={i} />
+                                        ))}
+                                    </div>
+                                    <span className="text-xs text-gray-500">
+                                        {new Date(review.created_at).toLocaleDateString()}
+                                    </span>
+                                </div>
+                                <button onClick={() => deleteReview(review.id)} className="text-red-500">
+                                    <FaTrash />
+                                </button>
+                            </div>
+                        ))
+                    ) : (
+                        <p className="text-center text-gray-500">No reviews yet.</p>
+                    )}
+                </div>
+            </div>
+        </div>
+    );
+}
