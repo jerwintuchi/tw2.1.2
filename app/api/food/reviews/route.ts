@@ -35,7 +35,7 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // ✅ Cache results to improve performance
+    //  Cache results
     return NextResponse.json(
       data.map((review) => ({
         ...review,
@@ -81,6 +81,9 @@ export async function POST(req: Request) {
         },
       ])
       .select();
+    if (review.length > 250) {
+      return NextResponse.json({ error: "Review too long" }, { status: 400 });
+    }
 
     if (error) {
       console.error("Database Insert Error:", error);
