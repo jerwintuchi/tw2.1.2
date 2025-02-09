@@ -1,10 +1,12 @@
 "use client";
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { PhotoList } from "@/utils/photos/photo-component/photoList"
-import { PhotoUploader } from "@/utils/photos/photo-component/photoUploader"
-import { usePhotoManager } from "@/utils/photos/photo-util/usePhotoManager"
+
+
 import { FaSortAlphaDown, FaSortNumericDown } from "react-icons/fa"
+import { PhotoUploader } from "./PhotoUploader";
+import { PhotoList } from "./PhotoList";
+import { usePhotoManager } from "../_hook/usePhotos";
 
 
 export default function PhotoManager({ user }: { user: any }) {

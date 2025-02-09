@@ -24,7 +24,7 @@ export async function GET(req: Request) {
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
-  return NextResponse.json(data);
+  return NextResponse.json(data, { status: 200 });
 }
 
 // POST: Upload new photos (multiple files)
@@ -70,7 +70,7 @@ export async function POST(req: Request) {
     uploadedPhotos.push(data);
   }
 
-  return NextResponse.json(uploadedPhotos);
+  return NextResponse.json(uploadedPhotos, { status: 200 });
 }
 
 // DELETE: Delete a photo by ID
@@ -104,7 +104,12 @@ export async function DELETE(req: Request) {
     return NextResponse.json({ error: deleteDbError.message }, { status: 500 });
   }
 
-  return NextResponse.json({ message: "Photo deleted successfully" });
+  return NextResponse.json(
+    { message: "Photo deleted successfully" },
+    {
+      status: 200,
+    }
+  );
 }
 
 // PATCH: Update photo name
@@ -127,5 +132,5 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }
 
-  return NextResponse.json(data);
+  return NextResponse.json(data, { status: 200 });
 }

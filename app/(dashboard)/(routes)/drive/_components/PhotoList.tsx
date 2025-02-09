@@ -1,7 +1,8 @@
 "use client";
+import { getImageSrc } from "@/utils/getImgSrc";
 import { Trash2 } from "lucide-react"
 import Image from "next/image"
-import { getImageSrc } from "../photo-util/getImgSrc";
+
 
 interface PhotoListProps {
     photos: { id: string; photo_name: string; photo_url: string }[]
