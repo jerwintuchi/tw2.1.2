@@ -61,7 +61,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
 
             if (!response.ok) throw new Error("Failed to submit review");
 
-            // ✅ Refetch reviews after submission
+            // Refetch reviews after submission
             const updatedResponse = await fetch(`/api/food/reviews?foodPhotoId=${foodPhotoId}`);
             const updatedData = await updatedResponse.json();
             setReviews(updatedData);
@@ -82,7 +82,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
 
             if (!response.ok) throw new Error("Failed to delete review");
 
-            // ✅ Refetch reviews after deletion
+            //  Refetch reviews after deletion
             const updatedResponse = await fetch(`/api/food/reviews?foodPhotoId=${foodPhotoId}`);
             const updatedData = await updatedResponse.json();
             setReviews(updatedData);

@@ -62,7 +62,7 @@ export default function FoodList({ userId, photos, deletePhoto, updatePhotoName 
                                     onChange={(e) => setNewPhotoName(e.target.value)}
                                     className="border p-1 rounded w-full"
                                 />
-                                <Button onClick={() => handleUpdatePhotoName(photo.id, newPhotoName)}>
+                                <Button disabled={photo.photo_name === newPhotoName} onClick={() => handleUpdatePhotoName(photo.id, newPhotoName)}>
                                     <FaSave size={16} />
                                 </Button>
                                 <Button variant="secondary" onClick={() => setEditingPhotoId(null)}>
