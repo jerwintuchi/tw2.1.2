@@ -10,7 +10,7 @@ interface Review {
     review: string;
     rating: number;
     created_at: string;
-    profiles: { username: string }; //  profiles is a single object, not an array
+    profiles: { username: string };
 }
 
 const ReviewHistory: React.FC = () => {
@@ -22,7 +22,7 @@ const ReviewHistory: React.FC = () => {
         fetchAllReviews();
     }, [sortBy]);
 
-    // Fetch all reviews, sorted by Pokémon name or review date
+    // Fetch all reviews, sorted by Pokémon name or latest review date
     const fetchAllReviews = async () => {
         setLoading(true);
         const { data, error } = await supabase
@@ -35,8 +35,7 @@ const ReviewHistory: React.FC = () => {
                 created_at, 
                 profiles!inner(username) 
             `)
-            .order(sortBy === "name" ? "pokemon_name" : "created_at", { ascending: sortBy === "name" })
-
+            .order(sortBy === "name" ? "pokemon_name" : "created_at", { ascending: sortBy === "name" });
 
         if (error) {
             console.error("Error fetching review history:", error);
@@ -46,10 +45,9 @@ const ReviewHistory: React.FC = () => {
 
         console.log("Fetched reviews data", data);
 
-        // Fix: Ensure `profiles` is treated as an object, NOT an array
         const formattedData = data?.map((review) => ({
             ...review,
-            profiles: Array.isArray(review.profiles) ? review.profiles[0] : review.profiles, // Ensure `profiles` is an object
+            profiles: Array.isArray(review.profiles) ? review.profiles[0] : review.profiles,
         })) || [];
 
         setReviews(formattedData);
@@ -65,7 +63,7 @@ const ReviewHistory: React.FC = () => {
                 onChange={(e) => setSortBy(e.target.value as "name" | "date")}
                 className="border p-2 w-full mt-2"
             >
-                <option value="date">Sort by Date</option>
+                <option value="date">Sort by Latest Date</option>
                 <option value="name">Sort by Pokémon Name</option>
             </select>
 
@@ -77,22 +75,24 @@ const ReviewHistory: React.FC = () => {
                 <p className="text-center text-gray-500 mt-4">No reviews found.</p>
             )}
 
-            {/* Reviews List */}
+            {/* Scrollable Reviews List */}
             {!loading && reviews.length > 0 && (
-                <ul className="mt-4">
-                    {reviews.map((review) => (
-                        <li key={review.id} className="border p-2 mt-2">
-                            <p className="text-sm font-bold pb-2">{review.pokemon_name.toUpperCase() || "Unknown User"}</p>
-                            <blockquote className="italic"><p className="text-sm pb-2">"{review.review}"</p></blockquote>
-                            <p className="text-xs text-gray-500">
-                                By {review.profiles?.username} | Rating: {review.rating} ⭐
-                            </p>
-                            <p className="text-xs text-gray-400">
-                                Reviewed on: {convertToPHT(review.created_at)}
-                            </p>
-                        </li>
-                    ))}
-                </ul>
+                <div className="mt-4 max-h-[400px] overflow-y-auto pr-2">
+                    <ul>
+                        {reviews.map((review) => (
+                            <li key={review.id} className="border p-2 mt-2">
+                                <p className="text-sm font-bold pb-2">{review.pokemon_name.toUpperCase()}</p>
+                                <blockquote className="italic"><p className="text-sm pb-2">"{review.review}"</p></blockquote>
+                                <p className="text-xs text-gray-500">
+                                    By {review.profiles?.username} | Rating: {review.rating} ⭐
+                                </p>
+                                <p className="text-xs text-gray-400">
+                                    Reviewed on: {convertToPHT(review.created_at)}
+                                </p>
+                            </li>
+                        ))}
+                    </ul>
+                </div>
             )}
         </div>
     );
