@@ -17,7 +17,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ search, setSearch, fetchPokemon }
                 placeholder="Search Pokémon..."
                 className="flex border p-2 w-full"
             />
-            <button onClick={fetchPokemon} className="bg-transparent text-white hover:text-gray-500 py-2">
+            <button onClick={fetchPokemon} className="bg-transparent text-black hover:text-slate-300 dark:text-white dark:hover:text-gray-500 py-2">
                 <SearchIcon size={24} />
             </button>
         </div>
