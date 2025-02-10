@@ -29,7 +29,14 @@ export function usePokemonReviews(user: UserWithUsername) {
       }
 
       const data = await res.json();
-      setPokemon({ name: data.name, image: data.sprites.front_default });
+      console.log("POKEMON DATA: ", data);
+      setPokemon({
+        name: data.name,
+        image: data.sprites.front_default,
+        cries: data.cries,
+        types: data.types,
+        abilities: data.abilities,
+      });
       fetchReviews(data.name);
       setNotFound(false);
     } catch (error) {
@@ -59,16 +66,14 @@ export function usePokemonReviews(user: UserWithUsername) {
   // Create a new review
   const addReview = async () => {
     if (!pokemon || !newReview) return;
-    const { error } = await supabase
-      .from("pokemon_reviews")
-      .insert([
-        {
-          user_id: user.supabaseUser.id,
-          pokemon_name: pokemon.name,
-          review: newReview,
-          rating,
-        },
-      ]);
+    const { error } = await supabase.from("pokemon_reviews").insert([
+      {
+        user_id: user.supabaseUser.id,
+        pokemon_name: pokemon.name,
+        review: newReview,
+        rating,
+      },
+    ]);
     if (error) console.error(error);
     setNewReview("");
     fetchReviews(pokemon.name);
