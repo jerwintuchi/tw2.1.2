@@ -1,4 +1,4 @@
-import { getUser, getUserWithUsername } from '@/utils/supabase/user-helpers-server'
+import { getUserWithUsername } from '@/utils/supabase/user-helpers-server'
 import React from 'react'
 import PokemonClient from './_components/PokemonClient';
 

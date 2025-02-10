@@ -31,16 +31,16 @@ const ReviewList: React.FC<ReviewListProps> = ({
 
     return (
         <div className="mt-4">
-            <h3 className="text-lg font-bold">Reviews</h3>
+            <h3 className="text-lg font-bold dark:text-black">Reviews</h3>
 
             {/* Review Form */}
             <textarea
                 value={newReview}
                 onChange={(e) => setNewReview(e.target.value)}
                 placeholder="Write a review..."
-                className="border p-2 w-full mt-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400"
+                className="border p-2 w-full mt-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 bg-green-950"
             />
-            <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="border p-2 w-full mt-2 rounded-md">
+            <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="border p-2 w-full mt-2 rounded-md text-white bg-green-950">
                 {[1, 2, 3, 4, 5].map((num) => (
                     <option key={num} value={num}>
                         {num} Stars
@@ -57,10 +57,10 @@ const ReviewList: React.FC<ReviewListProps> = ({
             ) : (
                 <ul>
                     {reviews.map((review) => (
-                        <li key={review.id} className="border p-4 mt-4 rounded-lg shadow-md bg-white dark:bg-black">
+                        <li key={review.id} className="border p-4 mt-4 rounded-lg shadow-md bg-green-950 dark:bg-green-950">
                             <p className="text-sm font-bold text-blue-600 dark:text-white">{review.profiles?.username || "Unknown User"}</p>
 
-                            <blockquote className="italic text-gray-700 dark:text-white border-l-4 border-blue-400 pl-3 mt-1">
+                            <blockquote className="italic text-slate-300 dark:text-white border-l-4 border-green-300 pl-3 mt-1">
                                 "{review.review}"
                             </blockquote>
 
