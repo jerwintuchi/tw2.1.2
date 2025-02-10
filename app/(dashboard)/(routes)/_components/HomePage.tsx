@@ -1,12 +1,14 @@
-import { User } from '@supabase/supabase-js';
+import { UserWithUsername } from '@/app/types/type-definitions';
 import { InfoIcon } from 'lucide-react';
 import React from 'react'
 
 interface HomePageProps {
-    user: User;
+    user: UserWithUsername;
 }
 
 export default function HomePage({ user }: HomePageProps) {
+    const lastSignIn = new Date(user.supabaseUser.last_sign_in_at ?? 'Not available');
+    const formattedLastSignIn = lastSignIn.toLocaleString();
     return (
         <div className="flex-1 w-full flex flex-col gap-12 px-6 py-8 bg-white dark:bg-background">
             {/* Call to Action Section */}
@@ -26,7 +28,7 @@ export default function HomePage({ user }: HomePageProps) {
             {/* Welcome Section */}
             <div className="flex flex-col gap-4 items-start">
                 <h2 className="font-bold text-3xl mb-4 text-gray-900 dark:text-white">
-                    Welcome back, {'User'}!
+                    Welcome back, {user.username}!
                 </h2>
                 <p className="text-lg text-gray-700 dark:text-gray-400">
                     We're glad to have you back. Here's a summary of your account.
@@ -41,11 +43,11 @@ export default function HomePage({ user }: HomePageProps) {
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                         <h4 className="font-semibold text-lg text-gray-600 dark:text-gray-300">Email:</h4>
-                        <p className="text-gray-700 dark:text-gray-200">{user?.email || 'Not available'}</p>
+                        <p className="text-gray-700 dark:text-gray-200">{user.supabaseUser.email || 'Not available'}</p>
                     </div>
                     <div>
-                        <h4 className="font-semibold text-lg text-gray-600 dark:text-gray-300">User ID:</h4>
-                        <p className="text-gray-700 dark:text-gray-200">{user?.id || 'Not available'}</p>
+                        <h4 className="font-semibold text-lg text-gray-600 dark:text-gray-300">Last Sign in:</h4>
+                        <p className="text-gray-700 dark:text-gray-200">{formattedLastSignIn || 'Not available'}</p>
                     </div>
                     {/* Add more fields here if needed */}
                 </div>
