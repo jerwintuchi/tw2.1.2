@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input"
 import { FaSortAlphaDown, FaSortNumericDown } from "react-icons/fa"
 import { PhotoUploader } from "./PhotoUploader";
 import { PhotoList } from "./PhotoList";
-import { usePhoto } from "../../../../../utils/photo-hook/usePhoto";
+import { usePhoto } from "../../../../../utils/hooks/usePhoto";
 
 
 export default function PhotoManager({ user }: { user: any }) {

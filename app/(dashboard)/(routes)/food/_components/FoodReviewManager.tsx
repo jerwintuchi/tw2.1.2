@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input"
 
 import { FaSortAlphaDown, FaSortNumericDown } from "react-icons/fa"
 
-import { usePhoto } from "../../../../../utils/photo-hook/usePhoto";
+import { usePhoto } from "../../../../../utils/hooks/usePhoto";
 import { PhotoUploader } from "../../drive/_components/PhotoUploader";
 import FoodList from "./FoodList";
 import { User } from "@supabase/supabase-js";

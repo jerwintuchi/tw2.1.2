@@ -24,6 +24,7 @@ export default function FoodList({ userId, photos, deletePhoto, updatePhotoName 
     const [editingPhotoId, setEditingPhotoId] = useState<string | null>(null);
     const [newPhotoName, setNewPhotoName] = useState<string>("");
 
+
     // Memoizing the computed values
     const memoizedPhotos = useMemo(
         () =>
@@ -42,6 +43,7 @@ export default function FoodList({ userId, photos, deletePhoto, updatePhotoName 
         },
         [updatePhotoName]
     );
+
 
     return (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
