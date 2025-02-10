@@ -38,21 +38,21 @@ const ReviewList: React.FC<ReviewListProps> = ({
                 value={newReview}
                 onChange={(e) => setNewReview(e.target.value)}
                 placeholder="Write a review..."
-                className="border p-2 w-full mt-2"
+                className="border p-2 w-full mt-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400"
             />
-            <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="border p-2 w-full mt-2">
+            <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="border p-2 w-full mt-2 rounded-md">
                 {[1, 2, 3, 4, 5].map((num) => (
                     <option key={num} value={num}>
                         {num} Stars
                     </option>
                 ))}
             </select>
-            <button onClick={addReview} className="bg-green-500 text-white px-4 py-2 mt-2 w-full">
+            <button onClick={addReview} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 mt-2 w-full rounded-md transition">
                 Submit Review
             </button>
 
             {/* Sorting Options */}
-            <select onChange={(e) => setSortBy(e.target.value as "name" | "date")} className="border p-2 w-full mt-2">
+            <select onChange={(e) => setSortBy(e.target.value as "name" | "date")} className="border p-2 w-full mt-2 rounded-md">
                 <option value="date">Sort by Date</option>
                 <option value="name">Sort by Name</option>
             </select>
@@ -63,13 +63,17 @@ const ReviewList: React.FC<ReviewListProps> = ({
             ) : (
                 <ul>
                     {reviews.map((review) => (
-                        <li key={review.id} className="border p-2 mt-2">
-                            <p className="text-sm font-bold">{review.profiles?.username || "Unknown User"}</p>
-                            <p className="text-sm">{review.review}</p>
-                            <p className="text-xs text-gray-500">Rating: {review.rating} ⭐</p>
+                        <li key={review.id} className="border p-4 mt-4 rounded-lg shadow-md bg-white dark:bg-black">
+                            <p className="text-sm font-bold text-blue-600 dark:text-white">{review.profiles?.username || "Unknown User"}</p>
+
+                            <blockquote className="italic text-gray-700 dark:text-white border-l-4 border-blue-400 pl-3 mt-1">
+                                "{review.review}"
+                            </blockquote>
+
+                            <p className="text-xs text-gray-500 mt-2">⭐ {review.rating} Stars</p>
 
                             {review.user_id === userId && (
-                                <button onClick={() => deleteReview(review.id, userId)} className="text-red-500 text-sm">
+                                <button onClick={() => deleteReview(review.id, userId)} className="text-red-500 text-sm mt-2 hover:text-red-700">
                                     Delete
                                 </button>
                             )}

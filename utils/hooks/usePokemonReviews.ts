@@ -51,6 +51,7 @@ export function usePokemonReviews(user: UserWithUsername) {
       });
 
     if (error) console.error("Error fetching reviews:", error);
+
     setReviews(data || []);
     setLoading(false);
   };
