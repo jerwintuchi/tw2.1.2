@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { createClient } from "@/utils/supabase/client";
+import { convertToPHT } from "@/utils/convertToPht";
 
 const supabase = createClient();
 
@@ -27,20 +28,22 @@ const ReviewHistory: React.FC = () => {
         const { data, error } = await supabase
             .from("pokemon_reviews")
             .select(`
-            id, 
-            pokemon_name, 
-            review, 
-            rating, 
-            created_at, 
-            profiles!inner(username) 
+                id, 
+                pokemon_name, 
+                review, 
+                rating, 
+                created_at, 
+                profiles!inner(username) 
             `)
-            .order(sortBy === "name" ? "pokemon_name" : "created_at", { ascending: true });
+            .order(sortBy === "name" ? "pokemon_name" : "created_at", { ascending: sortBy === "name" })
+
 
         if (error) {
             console.error("Error fetching review history:", error);
             setLoading(false);
             return;
         }
+
         console.log("Fetched reviews data", data);
 
         // Fix: Ensure `profiles` is treated as an object, NOT an array
@@ -48,10 +51,9 @@ const ReviewHistory: React.FC = () => {
             ...review,
             profiles: Array.isArray(review.profiles) ? review.profiles[0] : review.profiles, // Ensure `profiles` is an object
         })) || [];
+
         setReviews(formattedData);
         setLoading(false);
-
-
     };
 
     return (
@@ -80,12 +82,14 @@ const ReviewHistory: React.FC = () => {
                 <ul className="mt-4">
                     {reviews.map((review) => (
                         <li key={review.id} className="border p-2 mt-2">
-                            <p className="text-sm font-bold">{review.profiles?.username || "Unknown User"}</p>
-                            <p className="text-sm">{review.review}</p>
+                            <p className="text-sm font-bold pb-2">{review.pokemon_name.toUpperCase() || "Unknown User"}</p>
+                            <blockquote className="italic"><p className="text-sm pb-2">"{review.review}"</p></blockquote>
                             <p className="text-xs text-gray-500">
-                                Pokémon: {review.pokemon_name} | Rating: {review.rating} ⭐
+                                By {review.profiles?.username} | Rating: {review.rating} ⭐
                             </p>
-                            <p className="text-xs text-gray-400">Reviewed on: {new Date(review.created_at).toLocaleString()}</p>
+                            <p className="text-xs text-gray-400">
+                                Reviewed on: {convertToPHT(review.created_at)}
+                            </p>
                         </li>
                     ))}
                 </ul>

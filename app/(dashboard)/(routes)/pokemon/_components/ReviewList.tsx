@@ -51,12 +51,6 @@ const ReviewList: React.FC<ReviewListProps> = ({
                 Submit Review
             </button>
 
-            {/* Sorting Options */}
-            <select onChange={(e) => setSortBy(e.target.value as "name" | "date")} className="border p-2 w-full mt-2 rounded-md">
-                <option value="date">Sort by Date</option>
-                <option value="name">Sort by Name</option>
-            </select>
-
             {/* No Reviews Message */}
             {reviews.length === 0 ? (
                 <p className="text-center text-gray-500 mt-4">No reviews yet. Be the first to leave a review!</p>
