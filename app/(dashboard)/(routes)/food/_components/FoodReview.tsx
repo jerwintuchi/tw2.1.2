@@ -22,7 +22,7 @@ interface FoodReviewProps {
 export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewProps) {
     const [reviews, setReviews] = useState<Review[]>([]);
     const [newReview, setNewReview] = useState("");
-    const [rating, setRating] = useState(5);
+    const [rating, setRating] = useState(0);
     const [loading, setLoading] = useState(false);
     const [keyboardOpen, setKeyboardOpen] = useState(false);
     const hasFetched = useRef(false); // Prevent duplicate fetching

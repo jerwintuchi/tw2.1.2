@@ -18,12 +18,10 @@ export async function GET(req: Request) {
   if (error)
     return NextResponse.json({ error: error.message }, { status: 500 });
 
-  // cache headers
+  //  always fetch fresh data
   return NextResponse.json(data, {
     status: 200,
-    headers: {
-      "Cache-Control": "public, max-age=300", // Cache for 5 minutes
-    },
+    headers: { "Cache-Control": "no-store, must-revalidate" },
   });
 }
 

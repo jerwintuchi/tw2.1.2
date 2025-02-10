@@ -4,11 +4,12 @@ import React, { useState, useEffect } from 'react'
 import { User } from '@supabase/supabase-js'
 import { createClient } from '@/utils/supabase/client';
 import Image from 'next/image';
+import { UserWithUsername } from '@/app/types/type-definitions';
 
 const supabase = createClient()
 
 interface PokemonClientProps {
-    user: User;
+    user: UserWithUsername;
 }
 
 export default function PokemonPage({ user }: PokemonClientProps) {
@@ -18,41 +19,59 @@ export default function PokemonPage({ user }: PokemonClientProps) {
     const [newReview, setNewReview] = useState('')
     const [rating, setRating] = useState(5)
     const [sortBy, setSortBy] = useState<'name' | 'date'>('date')
+    const [notFound, setNotFound] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     // Fetch Pokémon data
     const fetchPokemon = async () => {
-        if (!search) return
+        if (!search) return;
         try {
-            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${search.toLowerCase()}`)
-            if (!res.ok) return null;
-            const data = await res.json()
+            const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${search.toLowerCase()}`);
+
+            if (!res.ok) {
+                setPokemon(null);
+                setNotFound(true);  // Pokémon was not found
+                return;
+            }
+
+            const data = await res.json();
             setPokemon({
                 name: data.name,
                 image: data.sprites.front_default,
-            })
-            fetchReviews(data.name) // Fetch reviews for this Pokémon
+            });
+            fetchReviews(data.name);
+            setNotFound(false);  // Reset error state
         } catch (error) {
-            console.error(error)
-            setPokemon(null)
+            console.error(error);
+            setPokemon(null);
+            setNotFound(true);  // Handle error as "not found"
         }
-    }
+    };
+
 
     // Fetch reviews from Supabase
+
+
     const fetchReviews = async (pokemonName: string) => {
+        setLoading(true);
         const { data, error } = await supabase
             .from('pokemon_reviews')
-            .select('*')
+            .select('id, user_id, review, rating, created_at, profiles(username)')
             .eq('pokemon_name', pokemonName)
-            .order(sortBy === 'name' ? 'pokemon_name' : 'created_at', { ascending: true })
-        if (error) console.error(error)
-        setReviews(data || [])
-    }
+            .order(sortBy === 'name' ? 'pokemon_name' : 'created_at', { ascending: true });
+
+        if (error) console.error("Error fetching reviews:", error);
+        setReviews(data || []);
+        setLoading(false);
+    };
+
+
 
     // Create a new review
     const addReview = async () => {
         if (!pokemon || !newReview) return
         const { error } = await supabase.from('pokemon_reviews').insert([
-            { user_id: user.id, pokemon_name: pokemon.name, review: newReview, rating },
+            { user_id: user.supabaseUser.id, pokemon_name: pokemon.name, review: newReview, rating },
         ])
         if (error) console.error(error)
         setNewReview('')
@@ -60,10 +79,22 @@ export default function PokemonPage({ user }: PokemonClientProps) {
     }
 
     // Delete a review
-    const deleteReview = async (id: string) => {
-        await supabase.from('pokemon_reviews').delete().eq('id', id)
-        fetchReviews(pokemon?.name)
-    }
+    const deleteReview = async (id: string, userId: string) => {
+        if (user.supabaseUser.id !== userId) {
+            alert('You do not have permission to delete this review');
+            return;
+        }
+
+        // Remove the review from state instantly
+        setReviews((prevReviews) => prevReviews.filter((r) => r.id !== id));
+
+        const { error } = await supabase.from('pokemon_reviews').delete().eq('id', id);
+        if (error) {
+            console.error("Error deleting review:", error);
+            fetchReviews(pokemon?.name); // Re-fetch if deletion fails
+        }
+    };
+
 
     return (
         <div className="p-4 max-w-md mx-auto">
@@ -80,20 +111,13 @@ export default function PokemonPage({ user }: PokemonClientProps) {
             </button>
 
             {/* Pokémon Display */}
-            {pokemon ? (
+            {pokemon && (
                 <div className="mt-4 text-center">
                     <h2 className="text-xl font-bold">{pokemon.name}</h2>
                     <img src={pokemon.image} alt={pokemon.name} className="mx-auto" />
                 </div>
-            ) :
-                (
-                    <div className="mt-4 text-center pt-12">
-                        <Image className='mx-auto pb-4' src={`/static/pikachu_glass.png`} width={100} height={100} alt="Pikachu Magnifying Glass" unoptimized />
 
-                        <h2 className="text-xl font-bold text-slate-600">No Pokémon found.</h2>
-                    </div>
-                )
-            }
+            )}
 
             {/* Review Section */}
             {pokemon && (
@@ -124,18 +148,32 @@ export default function PokemonPage({ user }: PokemonClientProps) {
                     </select>
 
                     {/* Reviews List */}
-                    <ul className="mt-4">
+                    {loading ? (<p>Loading reviews...</p>) : (<ul className="mt-4">
                         {reviews.map((review) => (
                             <li key={review.id} className="border p-2 mt-2">
+                                <p className="text-sm font-bold">{review.profiles?.username || "Unknown User"}</p>
                                 <p className="text-sm">{review.review}</p>
                                 <p className="text-xs text-gray-500">Rating: {review.rating} ⭐</p>
-                                <button onClick={() => deleteReview(review.id)} className="text-red-500 text-sm">
-                                    Delete
-                                </button>
+
+                                {review.user_id === user.supabaseUser.id && (
+                                    <button onClick={() => deleteReview(review.id, user.supabaseUser.id)} className="text-red-500 text-sm">
+                                        Delete
+                                    </button>
+                                )}
                             </li>
                         ))}
-                    </ul>
+                    </ul>)}
+
                 </div>
+            )}
+            {!pokemon && notFound && (
+                (
+                    <div className="mt-4 text-center pt-12">
+                        <Image className='mx-auto pb-4' src={`/static/pikachu_glass.png`} width={100} height={100} alt="Pikachu Magnifying Glass" unoptimized />
+
+                        <h2 className="text-xl font-bold text-slate-600">No Pokémon found.</h2>
+                    </div>
+                )
             )}
         </div>
     )

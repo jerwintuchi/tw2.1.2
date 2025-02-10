@@ -35,7 +35,6 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    //  Cache results
     return NextResponse.json(
       data.map((review) => ({
         ...review,
