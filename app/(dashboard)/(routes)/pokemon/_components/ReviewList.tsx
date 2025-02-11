@@ -38,7 +38,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
                 value={newReview}
                 onChange={(e) => setNewReview(e.target.value)}
                 placeholder="Write a review..."
-                className="border p-2 w-full mt-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 bg-green-950"
+                className="border p-2 w-full mt-2 rounded-md shadow-sm focus:ring-2 focus:ring-blue-400 bg-green-950 text-white"
             />
             <select value={rating} onChange={(e) => setRating(Number(e.target.value))} className="border p-2 w-full mt-2 rounded-md text-white bg-green-950">
                 {[1, 2, 3, 4, 5].map((num) => (
