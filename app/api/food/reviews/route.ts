@@ -121,3 +121,27 @@ export async function DELETE(req: Request) {
 
   return NextResponse.json({ message: "Review deleted" }, { status: 200 });
 }
+
+export async function PATCH(req: Request) {
+  const supabase = await createClient();
+  const { id, newReview, newRating } = await req.json();
+
+  if (!id || !newReview) {
+    return NextResponse.json({ error: "Missing parameters" }, { status: 400 });
+  }
+
+  const { data, error } = await supabase
+    .from("food_reviews")
+    .update({ review: newReview, rating: newRating })
+    .eq("id", id)
+    .select();
+
+  if (error) {
+    return NextResponse.json(
+      { error: "Failed to update review" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.json(data, { status: 200 });
+}
