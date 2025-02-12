@@ -101,6 +101,7 @@ export function usePokemonReviews(user: UserWithUsername) {
     setSearch,
     pokemon,
     reviews,
+    setReviews,
     newReview,
     setNewReview,
     rating,

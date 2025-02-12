@@ -19,6 +19,7 @@ export default function PokemonPage({ user }: PokemonClientProps) {
         setSearch,
         pokemon,
         reviews,
+        setReviews,
         newReview,
         setNewReview,
         rating,
@@ -67,6 +68,7 @@ export default function PokemonPage({ user }: PokemonClientProps) {
                     <div className="mt-4 bg-gray-100 border-2 border-black p-4 rounded-lg">
                         <ReviewList
                             reviews={reviews}
+                            setReviews={setReviews}
                             userId={user.supabaseUser.id}
                             deleteReview={deleteReview}
                             loading={loading}
@@ -77,6 +79,7 @@ export default function PokemonPage({ user }: PokemonClientProps) {
                             addReview={addReview}
                             sortBy={sortBy}
                             setSortBy={setSortBy}
+                            pokemon={pokemon}
                         />
                     </div>
                 )}

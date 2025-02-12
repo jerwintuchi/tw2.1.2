@@ -5,7 +5,7 @@ import { useEffect, useState, useRef } from "react"
 import Image from "next/image"
 import AudioVisualizer from "./AudioVisualizer"
 
-interface Pokemon {
+export interface Pokemon {
     name: string
     image: string
     types?: { type: { name: string } }[]
