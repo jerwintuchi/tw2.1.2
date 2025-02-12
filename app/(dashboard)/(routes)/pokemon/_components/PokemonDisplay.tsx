@@ -1,62 +1,86 @@
-import React, { useEffect, useState } from "react";
-import Image from "next/image";
+"use client"
+
+import type React from "react"
+import { useEffect, useState, useRef } from "react"
+import Image from "next/image"
+import AudioVisualizer from "./AudioVisualizer"
 
 interface Pokemon {
-    name: string;
-    image: string;
-    types?: { type: { name: string } }[];
-    cries?: { latest: string; legacy: string };
-    abilities?: { ability: { name: string } }[];
-    evolutions: string[];
+    name: string
+    image: string
+    types?: { type: { name: string } }[]
+    cries?: { latest: string; legacy: string }
+    abilities?: { ability: { name: string } }[]
+    evolutions: string[]
 }
 
 interface PokemonDisplayProps {
-    pokemon: Pokemon | null;
+    pokemon: Pokemon | null
 }
 
 const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ pokemon }) => {
-    const [evolutionImages, setEvolutionImages] = useState<{ name: string; image: string }[]>([]);
-    const [isPlaying, setIsPlaying] = useState(false);
+    const [evolutionImages, setEvolutionImages] = useState<{ name: string; image: string }[]>([])
+    const [isPlaying, setIsPlaying] = useState(false)
+    const audioRef = useRef<HTMLAudioElement | null>(null)
 
     useEffect(() => {
-        if (!pokemon || !Array.isArray(pokemon.evolutions) || pokemon.evolutions.length === 0) return;
+        if (!pokemon || !Array.isArray(pokemon.evolutions) || pokemon.evolutions.length === 0) return
 
         const fetchEvolutionImages = async () => {
             const images = await Promise.all(
                 pokemon.evolutions.map(async (evo) => {
                     try {
-                        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${evo}`);
-                        if (!res.ok) throw new Error(`Failed to fetch ${evo}`);
-                        const data = await res.json();
-                        return { name: evo, image: data.sprites.front_default };
+                        const res = await fetch(`https://pokeapi.co/api/v2/pokemon/${evo}`)
+                        if (!res.ok) throw new Error(`Failed to fetch ${evo}`)
+                        const data = await res.json()
+                        return { name: evo, image: data.sprites.front_default }
                     } catch (error) {
-                        console.error(error);
-                        return { name: evo, image: "/static/default_pokemon.png" };
+                        console.error(error)
+                        return { name: evo, image: "/static/default_pokemon.png" }
                     }
-                })
-            );
-            setEvolutionImages(images);
-        };
-
-        fetchEvolutionImages();
-    }, [pokemon]);
-
-    if (!pokemon) return null;
-
-    /**  Play Pokémon Cry with animation */
-    const playCry = () => {
-        if (!pokemon.cries?.latest) {
-            alert("No cry available for this Pokémon.");
-            return;
+                }),
+            )
+            setEvolutionImages(images)
         }
 
-        const audio = new Audio(pokemon.cries.latest);
-        setIsPlaying(true);
-        audio.play()
-            .catch((error) => console.error("Error playing audio:", error));
+        fetchEvolutionImages()
+    }, [pokemon])
 
-        audio.onended = () => setIsPlaying(false);
-    };
+    useEffect(() => {
+        if (!pokemon?.cries?.latest) return;
+
+        // Stop and reset the previous audio before updating
+        if (audioRef.current) {
+            audioRef.current.pause();
+            audioRef.current.currentTime = 0;
+        }
+
+        // Create a new audio element for the new Pokémon's cry
+        const newAudio = new Audio(pokemon.cries.latest);
+        newAudio.onended = () => setIsPlaying(false);
+
+        // Assign the new audio element to the ref
+        audioRef.current = newAudio;
+
+        // Reset playing state
+        setIsPlaying(false);
+    }, [pokemon]); // Runs whenever `pokemon` changes
+
+
+    if (!pokemon) return null
+
+    const playCry = () => {
+        if (!audioRef.current) return
+
+        if (isPlaying) {
+            audioRef.current.pause()
+            audioRef.current.currentTime = 0
+            setIsPlaying(false)
+        } else {
+            audioRef.current.play()
+            setIsPlaying(true)
+        }
+    }
 
     return (
         <div className="mt-4 bg-gray-200 border-4 border-black rounded-lg p-4 shadow-inner relative">
@@ -65,30 +89,22 @@ const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ pokemon }) => {
             {/* Pokémon Image */}
             <div className="flex justify-center my-2">
                 <img
-                    src={pokemon.image}
+                    src={pokemon.image || "/placeholder.svg"}
                     alt={pokemon.name}
                     className="border-2 border-black rounded-md bg-white w-32 h-32"
                 />
             </div>
 
-            {/* Play Cry Button + Sound Meter */}
+            {/* Play Cry Button + Visualizer */}
             <div className="flex flex-col items-center mt-2">
                 <button
                     onClick={playCry}
-                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded border-2 border-black"
+                    className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-1 px-3 rounded border-2 border-black mb-2"
                 >
-                    🔊 Play Cry
+                    🔊 {isPlaying ? "Stop" : "Play Cry"}
                 </button>
 
-                {/*  Sound Wave Animation */}
-                <div className="flex gap-1 mt-2 h-6">
-                    {[...Array(4)].map((_, index) => (
-                        <div
-                            key={index}
-                            className={`w-2 rounded-sm transition-all duration-600 ${isPlaying ? `animate-wave wave-${index}` : "h-2 bg-gray-400"}`}
-                        ></div>
-                    ))}
-                </div>
+                <AudioVisualizer isPlaying={isPlaying} />
             </div>
 
             {/* Pokémon Types */}
@@ -98,7 +114,7 @@ const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ pokemon }) => {
                         <span
                             key={index}
                             className={`text-xs font-bold px-2 py-1 rounded uppercase border-2 border-black 
-                        ${typeColors[t.type.name] || "bg-gray-400"}`}
+              ${typeColors[t.type.name] || "bg-gray-400"}`}
                         >
                             {t.type.name}
                         </span>
@@ -112,9 +128,7 @@ const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ pokemon }) => {
             {pokemon.abilities?.length ? (
                 <div className="text-center mt-2">
                     <h3 className="text-sm font-bold text-black">Abilities</h3>
-                    <p className="text-xs text-gray-700 italic">
-                        {pokemon.abilities.map((a) => a.ability.name).join(", ")}
-                    </p>
+                    <p className="text-xs text-gray-700 italic">{pokemon.abilities.map((a) => a.ability.name).join(", ")}</p>
                 </div>
             ) : (
                 <p className="text-center text-gray-600 text-sm">No ability data available</p>
@@ -128,7 +142,7 @@ const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ pokemon }) => {
                         {evolutionImages.map((evo) => (
                             <div key={evo.name} className="text-center">
                                 <Image
-                                    src={evo.image}
+                                    src={evo.image || "/placeholder.svg"}
                                     alt={evo.name}
                                     width={50}
                                     height={50}
@@ -141,11 +155,12 @@ const PokemonDisplay: React.FC<PokemonDisplayProps> = ({ pokemon }) => {
                 </div>
             )}
         </div>
-    );
-};
+    )
+}
 
 /* Type Colors Mapping */
 const typeColors: { [key: string]: string } = {
+    normal: "bg-gray-400 text-black",
     fire: "bg-red-500 text-white",
     water: "bg-blue-500 text-white",
     grass: "bg-green-500 text-white",
@@ -163,6 +178,7 @@ const typeColors: { [key: string]: string } = {
     dark: "bg-gray-900 text-white",
     steel: "bg-gray-500 text-white",
     fairy: "bg-pink-300 text-black",
-};
+}
 
-export default PokemonDisplay;
+export default PokemonDisplay
+
