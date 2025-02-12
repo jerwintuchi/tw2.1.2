@@ -49,6 +49,12 @@ const ReviewList: React.FC<ReviewListProps> = ({
     const [editedRating, setEditedRating] = useState<number>(0);
     const [saving, setSaving] = useState(false);
 
+    const startEditing = (review: PokemonReviews) => {
+        setEditingReviewId(review.id);
+        setEditedReview(review.review);
+        setEditedRating(review.rating);  // Default to existing rating
+    };
+
     if (loading) return <p className="text-sm mx-auto pt-12">Loading reviews...</p>;
 
     const updateReview = async (id: string) => {
@@ -56,6 +62,10 @@ const ReviewList: React.FC<ReviewListProps> = ({
         const supabase = createClient();
 
         try {
+            if (!editedRating) {
+                alert("Rating is empty, please select a rating.");
+                return;
+            }
             const { error } = await supabase
                 .from("pokemon_reviews")
                 .update({ review: editedReview, rating: editedRating })
@@ -160,8 +170,15 @@ const ReviewList: React.FC<ReviewListProps> = ({
                                 <div className="flex gap-2">
                                     {editingReviewId === review.id ? (
                                         <>
-                                            <button>
-                                                <FaSave onClick={() => updateReview(review.id)} className="w-6 h-6 text-green-500 hover:text-green-600 cursor-pointer" />
+                                            <button
+                                                className={`w-6 h-6 ${editedReview === review.review && editedRating === review.rating
+                                                    ? "text-gray-400 cursor-not-allowed"  //  Disabled if no changes
+                                                    : "text-green-500 hover:text-green-600 cursor-pointer"
+                                                    }`}
+                                                disabled={editedReview === review.review && editedRating === review.rating}
+                                                onClick={() => updateReview(review.id)}
+                                            >
+                                                <FaSave className="w-6 h-6" />
                                             </button>
                                             <button>
                                                 <FaTimes onClick={() => setEditingReviewId(null)} className="w-6 h-6 text-red-500 hover:text-red-600 cursor-pointer" />
@@ -169,7 +186,7 @@ const ReviewList: React.FC<ReviewListProps> = ({
                                         </>
                                     ) : (
                                         <button>
-                                            <FaEdit onClick={() => setEditingReviewId(review.id)} className="w-6 h-6 text-blue-500 hover:text-blue-600 cursor-pointer" />
+                                            <FaEdit onClick={() => startEditing(review)} className="w-6 h-6 text-blue-500 hover:text-blue-600 cursor-pointer" />
                                         </button>
                                     )}
                                 </div>
