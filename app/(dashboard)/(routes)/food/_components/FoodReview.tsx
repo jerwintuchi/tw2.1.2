@@ -28,6 +28,21 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
     const [editingReviewId, setEditingReviewId] = useState<string | null>(null);
     const [editedReview, setEditedReview] = useState("");
     const [editedRating, setEditedRating] = useState(0);
+    const [keyboardOpen, setKeyboardOpen] = useState(false);
+
+    // Detect if the keyboard is open on mobile
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerHeight < 450) {
+                setKeyboardOpen(true);
+            } else {
+                setKeyboardOpen(false);
+            }
+        };
+
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, []);
 
     useEffect(() => {
         if (!foodPhotoId || hasFetched.current) return;
@@ -135,7 +150,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                 </div>
 
                 {/* List of Reviews */}
-                <div className="mt-4 max-h-60 overflow-y-auto">
+                <div className="mt-4 max-h-60 overflow-y-auto" hidden={keyboardOpen}>
                     {reviews.map((review) => (
                         <div key={review.id} className="border-b py-2 flex justify-between items-center">
                             <div className="w-full">
