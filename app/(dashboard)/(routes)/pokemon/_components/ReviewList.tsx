@@ -47,9 +47,17 @@ const ReviewList: React.FC<ReviewListProps> = ({
                     </option>
                 ))}
             </select>
-            <button onClick={addReview} className="bg-green-500 hover:bg-green-600 text-white px-4 py-2 mt-2 w-full rounded-md transition">
+            <button
+                onClick={addReview}
+                disabled={newReview.trim() === "" || rating === 0}
+                className={`px-4 py-2 mt-2 w-full rounded-md transition ${newReview.trim() === "" || rating === 0
+                    ? "bg-gray-400 cursor-not-allowed"  // Disabled state
+                    : "bg-green-500 hover:bg-green-600 text-white"
+                    }`}
+            >
                 Submit Review
             </button>
+
 
             {/* No Reviews Message */}
             {reviews.length === 0 ? (
