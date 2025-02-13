@@ -140,6 +140,21 @@ export type Database = {
           },
         ]
       }
+      pending_users: {
+        Row: {
+          email: string
+          username: string
+        }
+        Insert: {
+          email: string
+          username: string
+        }
+        Update: {
+          email?: string
+          username?: string
+        }
+        Relationships: []
+      }
       photos: {
         Row: {
           created_at: string | null

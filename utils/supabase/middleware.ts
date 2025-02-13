@@ -1,3 +1,4 @@
+import { ValidRoutes } from "@/app/types/type-definitions";
 import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
 
@@ -37,9 +38,24 @@ export const updateSession = async (request: NextRequest) => {
 
     // This will refresh session if expired - required for Server Components
     // https://supabase.com/docs/guides/auth/server-side/nextjs
-    const user = await supabase.auth.getUser();
+    const { data: user, error } = await supabase.auth.getUser();
 
-    // protected routes
+    const protectedRoutes = [
+      "/todo",
+      "/drive",
+      "/foods",
+      "/pokemon",
+      "/markdown",
+    ];
+
+    // Check if the current pathname starts with a protected route
+    const isProtected = protectedRoutes.some((route) =>
+      request.nextUrl.pathname.startsWith(route)
+    );
+
+    if (isProtected && error) {
+      return NextResponse.redirect(new URL("/sign-in", request.url));
+    }
 
     return response;
   } catch (e) {

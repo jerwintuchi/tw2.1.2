@@ -10,13 +10,30 @@ export const signUpAction = async (formData: FormData) => {
   const email = formData.get("email")?.toString();
   const password = formData.get("password")?.toString();
   const supabase = await createClient();
-  //const origin = (await headers()).get("origin");
-  //check if username is unique
+  const origin = (await headers()).get("origin");
+
   if (!username) {
     return encodedRedirect("error", "/sign-up", "Username is required");
   }
 
-  const { data: existingUsername, error: usernameError } = await supabase
+  if (!email || !password) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Email and password are required"
+    );
+  }
+
+  if (username.length > 12) {
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "Username must be 12 characters or less"
+    );
+  }
+
+  // Check if username is unique
+  const { data: existingUsername } = await supabase
     .from("profiles")
     .select("username")
     .eq("username", username)
@@ -29,55 +46,27 @@ export const signUpAction = async (formData: FormData) => {
       "That username is already taken, try another one."
     );
   }
-  console.log(existingUsername);
 
-  if (!username || username.length > 12) {
-    return encodedRedirect(
-      "error",
-      "/sign-up",
-      "Username must be 12 characters or less"
-    );
-  }
-
-  if (!email || !password) {
-    return encodedRedirect(
-      "error",
-      "/sign-up",
-      "Email and password are required"
-    );
-  }
-  //check if email is unique
-  const { data: existingEmail, error: emailError } = await supabase
-    .from("profiles")
-    .select("email")
-    .eq("email", email)
-    .single();
-
-  if (existingEmail) {
-    return encodedRedirect("error", "/sign-up", "Email already exists");
-  }
-  // create the user in the auth table
-  const { error, data } = await supabase.auth.signUp({
+  // Sign up user and store username in metadata
+  const { data, error } = await supabase.auth.signUp({
     email,
     password,
+    options: {
+      emailRedirectTo: `${origin}/auth/callback`,
+      data: { username }, // Store username in metadata
+    },
   });
 
-  if (!data.user) {
-    return encodedRedirect("error", "/sign-up", "Something went wrong");
+  if (error) {
+    console.error("Signup error:", error.message);
+    return encodedRedirect("error", "/sign-up", error.message);
   }
 
-  // insert the credentials into te profiles table
-  const { error: profilesError } = await supabase.from("profiles").insert({
-    user_id: data.user.id,
-    username,
-    email,
-  });
-  if (profilesError) {
-    console.log(profilesError.code + " " + profilesError.message);
-    return encodedRedirect("error", "/sign-up", profilesError.message);
-  }
-  //if all is good, redirect to the index
-  return redirect("/");
+  return encodedRedirect(
+    "success",
+    "/sign-up",
+    "Please check your email for a verification link."
+  );
 };
 
 export const signInAction = async (formData: FormData) => {
@@ -140,7 +129,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (!password || !confirmPassword) {
     encodedRedirect(
       "error",
-      "/protected/reset-password",
+      "//reset-password", // prev. on protected route
       "Password and confirm password are required"
     );
   }
@@ -148,7 +137,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (password !== confirmPassword) {
     encodedRedirect(
       "error",
-      "/protected/reset-password",
+      "/reset-password", // prev. on protected route
       "Passwords do not match"
     );
   }
@@ -160,12 +149,12 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (error) {
     encodedRedirect(
       "error",
-      "/protected/reset-password",
+      "/reset-password", // prev. on protected route
       "Password update failed"
     );
   }
 
-  encodedRedirect("success", "/protected/reset-password", "Password updated");
+  encodedRedirect("success", "/reset-password", "Password updated"); // prev. on protected route
 };
 
 export const signOutAction = async () => {
