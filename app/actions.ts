@@ -189,7 +189,7 @@ export const resetPasswordAction = async (formData: FormData) => {
   if (!password || !confirmPassword) {
     encodedRedirect(
       "error",
-      "//reset-password", // prev. on protected route
+      "/reset-password", // prev. on protected route
       "Password and confirm password are required"
     );
   }
