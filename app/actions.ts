@@ -12,11 +12,44 @@ export const signUpAction = async (formData: FormData) => {
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
+  console.log("🚀 Sign-Up Attempt:", { username, email });
+
   if (!username) {
+    console.log("❌ Missing Username");
     return encodedRedirect("error", "/sign-up", "Username is required");
   }
 
+  // ✅ Step 1: Check if username already exists
+  const { data: isUsernameAvailable, error: usernameError } =
+    await supabase.rpc("check_username_availability", {
+      requested_username: username,
+    });
+
+  console.log("🔍 Username Availability Check:", {
+    isUsernameAvailable,
+    usernameError,
+  });
+
+  if (usernameError) {
+    console.error("❌ Error checking username:", usernameError);
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "An error occurred, please try again."
+    );
+  }
+
+  if (!isUsernameAvailable) {
+    console.log("❌ Username already exists");
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "That username is already taken, try another one."
+    );
+  }
+
   if (!email || !password) {
+    console.log("❌ Missing Email or Password");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -25,6 +58,7 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   if (username.length > 12) {
+    console.log("❌ Username Too Long");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -32,36 +66,62 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  // Check if username is unique
-  const { data: existingUsername } = await supabase
+  // ✅ Step 2: Check if email already exists in profiles
+  const { data: existingProfile, error: profileError } = await supabase
     .from("profiles")
-    .select("username")
-    .eq("username", username)
-    .single();
+    .select("email")
+    .eq("email", email)
+    .maybeSingle();
 
-  if (existingUsername) {
+  console.log("🔍 Email Check in Profiles:", { existingProfile, profileError });
+
+  if (existingProfile) {
+    console.log("❌ Email already exists in profiles");
     return encodedRedirect(
       "error",
       "/sign-up",
-      "That username is already taken, try another one."
+      "That email is already taken, try another one."
     );
   }
 
-  // Sign up user and store username in metadata
+  // ✅ Step 3: Check if email exists in auth.users
+  const { data: existingUser, error: existingUserError } = await supabase.rpc(
+    "check_existing_email",
+    { user_email: email }
+  );
+
+  console.log("🔍 Email Check in auth.users:", {
+    existingUser,
+    existingUserError,
+  });
+
+  if (existingUser) {
+    console.log("❌ Email already exists in auth.users");
+    return encodedRedirect(
+      "error",
+      "/sign-up",
+      "That email is already taken, try another one."
+    );
+  }
+
+  // ✅ Step 4: Try signing up
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
     options: {
       emailRedirectTo: `${origin}/auth/callback`,
-      data: { username }, // Store username in metadata
+      data: { username },
     },
   });
 
+  console.log("🔍 Supabase Sign-Up Response:", { data, error });
+
   if (error) {
-    console.error("Signup error:", error.message);
+    console.log("❌ Supabase Sign-Up Error:", error.message);
     return encodedRedirect("error", "/sign-up", error.message);
   }
 
+  console.log("✅ Sign-Up Successful");
   return encodedRedirect(
     "success",
     "/sign-up",

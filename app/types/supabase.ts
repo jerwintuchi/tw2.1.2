@@ -140,21 +140,6 @@ export type Database = {
           },
         ]
       }
-      pending_users: {
-        Row: {
-          email: string
-          username: string
-        }
-        Insert: {
-          email: string
-          username: string
-        }
-        Update: {
-          email?: string
-          username?: string
-        }
-        Relationships: []
-      }
       photos: {
         Row: {
           created_at: string | null
@@ -280,10 +265,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      username_lookup: {
+        Row: {
+          username: string | null
+        }
+        Insert: {
+          username?: string | null
+        }
+        Update: {
+          username?: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      check_existing_email: {
+        Args: {
+          user_email: string
+        }
+        Returns: boolean
+      }
+      check_username_availability: {
+        Args: {
+          requested_username: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

@@ -9,6 +9,7 @@ interface HomePageProps {
 export default function HomePage({ user }: HomePageProps) {
     const lastSignIn = new Date(user.supabaseUser.last_sign_in_at ?? 'Not available');
     const formattedLastSignIn = lastSignIn.toLocaleString();
+    console.log("user metadata username", user.supabaseUser.user_metadata.username)
     return (
         <div className="flex-1 w-full flex flex-col gap-12 px-6 py-8 bg-white dark:bg-background">
             {/* Call to Action Section */}
