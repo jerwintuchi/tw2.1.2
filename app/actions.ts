@@ -15,11 +15,11 @@ export const signUpAction = async (formData: FormData) => {
   console.log("🚀 Sign-Up Attempt:", { username, email });
 
   if (!username) {
-    console.log("❌ Missing Username");
+    console.log("Missing Username");
     return encodedRedirect("error", "/sign-up", "Username is required");
   }
 
-  // ✅ Step 1: Check if username already exists
+  //  Check if username already exists
   const { data: isUsernameAvailable, error: usernameError } =
     await supabase.rpc("check_username_availability", {
       requested_username: username,
@@ -31,7 +31,7 @@ export const signUpAction = async (formData: FormData) => {
   });
 
   if (usernameError) {
-    console.error("❌ Error checking username:", usernameError);
+    console.error("Error checking username:", usernameError);
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -40,7 +40,7 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   if (!isUsernameAvailable) {
-    console.log("❌ Username already exists");
+    console.log("Username already exists");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -49,7 +49,7 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   if (!email || !password) {
-    console.log("❌ Missing Email or Password");
+    console.log("Missing Email or Password");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -58,7 +58,7 @@ export const signUpAction = async (formData: FormData) => {
   }
 
   if (username.length > 12) {
-    console.log("❌ Username Too Long");
+    console.log("Username Too Long");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -66,7 +66,7 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  // ✅ Step 2: Check if email already exists in profiles
+  // Check if email already exists in profiles
   const { data: existingProfile, error: profileError } = await supabase
     .from("profiles")
     .select("email")
@@ -76,7 +76,7 @@ export const signUpAction = async (formData: FormData) => {
   console.log("🔍 Email Check in Profiles:", { existingProfile, profileError });
 
   if (existingProfile) {
-    console.log("❌ Email already exists in profiles");
+    console.log("Email already exists in profiles");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -84,7 +84,7 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  // ✅ Step 3: Check if email exists in auth.users
+  // Step 3: Check if email exists in auth.users
   const { data: existingUser, error: existingUserError } = await supabase.rpc(
     "check_existing_email",
     { user_email: email }
@@ -96,7 +96,7 @@ export const signUpAction = async (formData: FormData) => {
   });
 
   if (existingUser) {
-    console.log("❌ Email already exists in auth.users");
+    console.log("Email already exists in auth.users");
     return encodedRedirect(
       "error",
       "/sign-up",
@@ -104,7 +104,7 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  // ✅ Step 4: Try signing up
+  // Step 4: Try signing up
   const { data, error } = await supabase.auth.signUp({
     email,
     password,
@@ -117,11 +117,11 @@ export const signUpAction = async (formData: FormData) => {
   console.log("🔍 Supabase Sign-Up Response:", { data, error });
 
   if (error) {
-    console.log("❌ Supabase Sign-Up Error:", error.message);
+    console.log("Supabase Sign-Up Error:", error.message);
     return encodedRedirect("error", "/sign-up", error.message);
   }
 
-  console.log("✅ Sign-Up Successful");
+  console.log("Sign-Up Successful");
   return encodedRedirect(
     "success",
     "/sign-up",
