@@ -103,7 +103,7 @@ export const signUpAction = async (formData: FormData) => {
       "That email is already taken, try another one."
     );
   }
-  console.log("SUCCESS NOW SIGNING UP (DUMMY FUNCTIONALITY)");
+
   // Try signing up
   const { data, error } = await supabase.auth.signUp({
     email,
