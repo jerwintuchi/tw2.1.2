@@ -12,7 +12,7 @@ export const signUpAction = async (formData: FormData) => {
   const supabase = await createClient();
   const origin = (await headers()).get("origin");
 
-  console.log("🚀 Sign-Up Attempt:", { username, email });
+  console.log("Sign-Up Attempt:", { username, email });
 
   if (!username) {
     console.log("Missing Username");
