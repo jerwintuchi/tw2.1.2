@@ -22,7 +22,7 @@ export const signUpAction = async (formData: FormData) => {
   //  Check if username already exists
   const { data: isUsernameAvailable, error: usernameError } =
     await supabase.rpc("check_username_availability", {
-      requested_username: username,
+      user_username: username,
     });
 
   console.log("🔍 Username Availability Check:", {
@@ -84,7 +84,7 @@ export const signUpAction = async (formData: FormData) => {
     );
   }
 
-  // Step 3: Check if email exists in auth.users
+  //  Check if email exists in auth.users
   const { data: existingUser, error: existingUserError } = await supabase.rpc(
     "check_existing_email",
     { user_email: email }
@@ -103,8 +103,8 @@ export const signUpAction = async (formData: FormData) => {
       "That email is already taken, try another one."
     );
   }
-
-  // Step 4: Try signing up
+  console.log("SUCCESS NOW SIGNING UP (DUMMY FUNCTIONALITY)");
+  // Try signing up
   const { data, error } = await supabase.auth.signUp({
     email,
     password,

@@ -265,18 +265,7 @@ export type Database = {
       }
     }
     Views: {
-      username_lookup: {
-        Row: {
-          username: string | null
-        }
-        Insert: {
-          username?: string | null
-        }
-        Update: {
-          username?: string | null
-        }
-        Relationships: []
-      }
+      [_ in never]: never
     }
     Functions: {
       check_existing_email: {
@@ -287,7 +276,7 @@ export type Database = {
       }
       check_username_availability: {
         Args: {
-          requested_username: string
+          user_username: string
         }
         Returns: boolean
       }
