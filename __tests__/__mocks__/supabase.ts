@@ -10,6 +10,8 @@ export const mockSupabase = {
     }),
     signInWithPassword: vi.fn(),
     signOut: vi.fn(),
+    forgotPasswordAction: vi.fn(async () => ({ error: null })),
+    resetPasswordForEmail: vi.fn(async () => ({ error: null })),
     updateUser: vi.fn(),
   },
   rpc: vi.fn(async (procedureName) => {
