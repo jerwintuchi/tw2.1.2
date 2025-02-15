@@ -33,7 +33,7 @@ describe("signInAction", () => {
     });
   });
 
-  test("should redirect to homepage on successful sign-in", async () => {
+  test("should redirect to index on successful sign-in", async () => {
     mockSupabase.auth.signInWithPassword.mockResolvedValueOnce({ error: null });
 
     const formData = new FormData();

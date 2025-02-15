@@ -10,7 +10,7 @@ type Props = ComponentProps<typeof Button> & {
 
 export function SubmitButton({
   children,
-  pendingText = "Signing you up...",
+  pendingText = "Submitting...",
   ...props
 }: Props) {
   const { pending } = useFormStatus();
