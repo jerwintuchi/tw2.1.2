@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { FormMessage } from "../../../components/form-message";
+import { FormMessage } from "@/components/form-message";
 import "@testing-library/jest-dom/vitest";
 import { describe, it, expect } from "vitest";
 
