@@ -11,9 +11,9 @@ interface PhotoListProps {
 
 export const PhotoList = ({ photos, deletePhoto }: PhotoListProps) => {
     return (
-        <ul className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
+        <ul data-testid="photo-list" className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-3 gap-6">
             {photos.map((photo) => (
-                <li key={photo.id} className="relative group overflow-hidden rounded-lg shadow-md">
+                <li data-testid={`photo-${photo.id}`} key={photo.id} className="relative group overflow-hidden rounded-lg shadow-md">
                     <div className="relative w-full h-80">
                         <Image
                             src={getImageSrc(photo.photo_url)}
@@ -30,6 +30,7 @@ export const PhotoList = ({ photos, deletePhoto }: PhotoListProps) => {
                         </div>
                     </div>
                     <button
+                        data-testid={`delete-photo-${photo.id}`}
                         onClick={() => deletePhoto(photo.id, photo.photo_url)}
                         className="absolute top-2 right-2 bg-transparent text-red-500 hover:text-red-700 rounded-full p-2 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                     >

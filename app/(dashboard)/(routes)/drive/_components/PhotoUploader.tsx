@@ -36,6 +36,7 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({ uploading, uploadP
 
     return (
         <div
+            data-testid="photo-uploader"
             className={`relative flex flex-col items-center justify-center w-full h-64 border-2 border-dashed rounded-lg transition-colors ${dragActive ? "border-green-500 bg-green-700/25" : "border-gray-300"
                 }`}
             onDragEnter={handleDrag}
