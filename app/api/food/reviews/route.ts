@@ -92,7 +92,7 @@ export async function POST(req: Request) {
       );
     }
 
-    return NextResponse.json({ status: 201 });
+    return NextResponse.json({ message: "Review added" }, { status: 201 });
   } catch (err) {
     console.error("Unexpected API Error:", err);
     return NextResponse.json(
