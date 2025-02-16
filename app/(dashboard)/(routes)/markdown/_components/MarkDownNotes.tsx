@@ -68,8 +68,12 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
             .select("*")
             .eq("user_id", user.id)
             .order("created_at", { ascending: false });
-        if (error) console.error(error);
-        else setNotes(data);
+        if (error) {
+            console.error(error);
+            setNotes([]); // In case of error, fallback to an empty array
+        } else {
+            setNotes(data || []); // Ensure data is always an array
+        }
     }
 
     async function addNote() {
