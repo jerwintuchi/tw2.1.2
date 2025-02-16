@@ -118,7 +118,6 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
     };
 
     return (
-        console.log("previewStates:", previewStates),
         <div className="max-w-xs mx-auto p-4 sm:p-6 relative md:max-w-sm lg:max-w-3xl">
             <h1 className="text-xl font-bold">Markdown Notes</h1>
 
