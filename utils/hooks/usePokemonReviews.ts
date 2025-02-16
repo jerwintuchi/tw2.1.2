@@ -100,6 +100,7 @@ export function usePokemonReviews(user: UserWithUsername) {
     search,
     setSearch,
     pokemon,
+    setPokemon,
     reviews,
     setReviews,
     newReview,
@@ -112,6 +113,7 @@ export function usePokemonReviews(user: UserWithUsername) {
     loading,
     fetchPokemon,
     addReview,
+    fetchReviews,
     deleteReview,
   };
 }
