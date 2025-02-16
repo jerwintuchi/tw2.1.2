@@ -1,5 +1,5 @@
 import { render, screen } from "@testing-library/react";
-import { FormMessage } from "@/components/form-message"; 
+import { FormMessage } from "../../../components/form-message";
 import "@testing-library/jest-dom/vitest";
 import { describe, it, expect } from "vitest";
 
@@ -7,7 +7,7 @@ describe("FormMessage Component", () => {
   it("renders success message correctly", async () => {
     // Correctly define the message type
     const message = { success: "Success! Your account has been created." };
-    const FormMessageComponent =  FormMessage({ message });
+    const FormMessageComponent = FormMessage({ message });
     render(FormMessageComponent); // Correct usage of render
 
     const successMessage = screen.getByText(message.success);
@@ -18,9 +18,9 @@ describe("FormMessage Component", () => {
 
   it("renders error message correctly", async () => {
     const message = { error: "Error! Something went wrong." };
-    const FormMessageComponent =  FormMessage({ message });
+    const FormMessageComponent = FormMessage({ message });
 
-    render(FormMessageComponent); 
+    render(FormMessageComponent);
 
     const errorMessage = screen.getByText(message.error);
     expect(errorMessage).toBeInTheDocument();
@@ -30,9 +30,9 @@ describe("FormMessage Component", () => {
 
   it("renders generic message correctly", async () => {
     const message = { message: "This is a generic message." };
-    const FormMessageComponent =  FormMessage({ message });
+    const FormMessageComponent = FormMessage({ message });
 
-    render(FormMessageComponent); 
+    render(FormMessageComponent);
 
     const genericMessage = screen.getByText(message.message);
     expect(genericMessage).toBeInTheDocument();
