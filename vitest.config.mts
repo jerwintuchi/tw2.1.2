@@ -9,14 +9,16 @@ export default defineConfig({
       {
         extends: true, // Inherit options from root config
         test: {
+          globals: true,
           name: "frontend",
-          include: ["__tests__/frontend/**/*.{test,spec}.{ts,js}"],
+          include: ["__tests__/frontend/**/*.{test,spec}.{ts,tsx,js,jsx}"],
           environment: "jsdom",
         },
       },
       {
         extends: true, // Inherit options from root config
         test: {
+          globals: true,
           name: "backend",
           include: ["__tests__/backend/**/*.{test,spec}.{ts,js}"],
           environment: "node",

@@ -86,14 +86,14 @@ export default function TodoList({ user }: TodoListProps) {
             {/* ACTION BUTTONS */}
             <div className="flex gap-2 flex-shrink-0 w-full sm:w-auto justify-between sm:justify-start">
               {editingId !== todo.id && (
-                <button onClick={() => { setEditingId(todo.id); setEditText(todo.task); }} className="hover:text-blue-500">
+                <button aria-label="Edit task" onClick={() => { setEditingId(todo.id); setEditText(todo.task); }} className="hover:text-blue-500">
                   <Pencil size={18} />
                 </button>
               )}
-              <button onClick={() => toggleComplete(todo.id, todo.completed)} className="hover:opacity-75 pl-2">
+              <button disabled={loading} aria-label={`Mark ${todo.completed ? "incomplete" : "complete"}`} onClick={() => toggleComplete(todo.id, todo.completed)} className="hover:opacity-75 pl-2">
                 <FaSquareCheck className={todo.completed ? "text-green-600" : "text-slate-500"} size={20} />
               </button>
-              <button onClick={() => deleteTodo(todo.id)} className="text-red-600 hover:text-red-800">
+              <button aria-label="Delete task" onClick={() => deleteTodo(todo.id)} className="text-red-600 hover:text-red-800">
                 <Trash2 size={20} />
               </button>
             </div>

@@ -1,6 +1,6 @@
 import { render, screen, act, cleanup } from "@testing-library/react";
 import ResetPassword from "@/app/(auth)/reset-password/page";
-import { vi, describe, it, expect, afterEach } from "vitest";
+import { vi } from "vitest";
 import "@testing-library/jest-dom/vitest";
 import { resetPasswordAction } from "@/app/actions";
 
