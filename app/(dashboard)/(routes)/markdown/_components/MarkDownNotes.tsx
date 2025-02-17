@@ -66,7 +66,7 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
         const { data, error } = await supabase
             .from("markdown_notes")
             .select("*")
-            .eq("user_id", user.id)
+            .filter("user_id", "eq", user.id)
             .order("created_at", { ascending: false });
         if (error) {
             console.error(error);
@@ -151,12 +151,12 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
             </div>
 
             {/* Display Notes */}
-            <div className="mt-4">
+            <div data-testid="markdown-notes" className="mt-4">
                 {notes.length === 0 ? (
                     <p className="text-gray-500 text-center">No markdown notes yet. Create one above!</p>
                 ) : (
                     notes.map((note) => (
-                        <div key={note.id} className="border p-4 rounded mb-4 relative flex flex-col md:flex-row md:gap-4">
+                        <div data-testid={`note-container-${note.id}`} key={note.id} className="border p-4 rounded mb-4 relative flex flex-col md:flex-row md:gap-4">
                             <div className="flex-1 w-full mb-4 md:mb-0 overflow-x-auto">
                                 <h2 className="font-bold text-lg">{note.title}</h2>
                                 {editingNote === note.id ? (
