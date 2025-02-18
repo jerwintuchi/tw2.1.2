@@ -10,7 +10,6 @@ import { Trash2, Pencil } from "lucide-react";
 import { FaSquareCheck } from "react-icons/fa6";
 import useTodos from "@/utils/hooks/useTodos";
 
-
 interface TodoListProps {
   user: User;
 }
@@ -20,6 +19,14 @@ export default function TodoList({ user }: TodoListProps) {
   const [newTask, setNewTask] = useState("");
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editText, setEditText] = useState("");
+
+  const handleUpdate = (todoId: string) => {
+    if (editText.trim()) {
+      updateTodo(todoId, editText);
+      setEditingId(null); // Reset editing state after update
+      setEditText(""); // Reset the edit text
+    }
+  };
 
   return (
     <div className="flex flex-col gap-6 w-full max-w-full sm:max-w-md lg:max-w-lg mx-auto px-2 sm:px-4">
@@ -62,9 +69,9 @@ export default function TodoList({ user }: TodoListProps) {
                   />
                   <div className="flex gap-2">
                     <button
-                      onClick={() => updateTodo(todo.id, editText)}
-                      disabled={editText.trim() === todo.task.trim()}
-                      className={`px-2 py-1 rounded flex-1 sm:flex-none ${editText.trim() === todo.task.trim()
+                      onClick={() => handleUpdate(todo.id)}
+                      disabled={editText.trim() === "" || editText.trim() === todo.task.trim()}
+                      className={`px-2 py-1 rounded flex-1 sm:flex-none ${editText.trim() === "" || editText.trim() === todo.task.trim()
                         ? "bg-gray-400 cursor-not-allowed"
                         : "bg-green-500 hover:bg-green-600 text-white"
                         }`}
