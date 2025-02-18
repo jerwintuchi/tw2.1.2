@@ -1,4 +1,6 @@
 "use client";
+import showErrorToast from "@/components/toasts/ErrorToast";
+import showSuccessToast from "@/components/toasts/SuccessToast";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { useEffect, useState, useRef } from "react";
@@ -63,28 +65,44 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
     }, [foodPhotoId]);
 
     const submitReview = async () => {
-        if (!newReview.trim()) return alert("Review cannot be empty");
+        // Check if review is empty or no rating is provided
+        if (!newReview.trim() || rating === 0) {
+            showErrorToast({ message: "Review cannot be empty and must have a rating" });
+            return; // Prevent further execution
+        }
 
         setLoading(true);
         try {
+            // Proceed with review submission only if validation passes
             const response = await fetch("/api/food/reviews", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ foodPhotoId, review: newReview, rating, userId }),
             });
 
-            if (!response.ok) throw new Error("Failed to submit review");
+            if (!response.ok) {
+                showErrorToast({ message: "Failed to submit review" });
+                return;
+            }
+
+            // Fetch the updated list of reviews after submitting
             const updatedResponse = await fetch(`/api/food/reviews?foodPhotoId=${foodPhotoId}`);
             const updatedData = await updatedResponse.json();
             setReviews(updatedData);
+
+            // Reset the review input and rating after successful submission
             setNewReview("");
-            setRating(5);
+            setRating(0);  // Reset to default value after a successful submission
+
+            showSuccessToast({ message: "Review submitted successfully!" });
         } catch (error) {
             console.error("Error adding review:", error);
+            showErrorToast({ message: "Failed to submit review" });
         } finally {
             setLoading(false);
         }
     };
+
 
     const deleteReview = async (id: string) => {
         try {
@@ -93,13 +111,17 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
             const updatedResponse = await fetch(`/api/food/reviews?foodPhotoId=${foodPhotoId}`);
             const updatedData = await updatedResponse.json();
             setReviews(updatedData);
+            showSuccessToast({ message: "Review deleted successfully!" });
         } catch (error) {
             console.error("Error deleting review:", error);
+            showErrorToast({ message: "Failed to delete review" });
         }
     };
 
     const updateReview = async (id: string) => {
-        if (!editedReview.trim()) return;
+        if (!editedReview.trim()) {
+            return showErrorToast({ message: "Review cannot be empty" });
+        }
 
         try {
             const response = await fetch("/api/food/reviews", {
@@ -113,8 +135,10 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
             const updatedData = await updatedResponse.json();
             setReviews(updatedData);
             setEditingReviewId(null);
+            showSuccessToast({ message: "Review updated successfully!" });
         } catch (error) {
             console.error("Error updating review:", error);
+            showErrorToast({ message: "Failed to update review" });
         }
     };
 
@@ -201,7 +225,7 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                                     ) : (
                                         <button
                                             data-testid={`edit-review-${review.id}`}
-                                            aria-label={`Edit review for ${review.username}`}   
+                                            aria-label={`Edit review for ${review.username}`}
                                             onClick={() => {
                                                 setEditingReviewId(review.id);
                                                 setEditedReview(review.review);
