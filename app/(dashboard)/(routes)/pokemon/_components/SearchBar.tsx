@@ -11,6 +11,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ search, setSearch, fetchPokemon }
     return (
         <div className="flex flex-row justify-center gap-2">
             <input
+                data-testid="search-bar"
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

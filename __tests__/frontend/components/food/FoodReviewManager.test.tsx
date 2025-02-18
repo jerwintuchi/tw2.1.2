@@ -5,8 +5,7 @@ import FoodReviewManager from "../../../../app/(dashboard)/(routes)/food/_compon
 import { usePhoto } from "../../../../utils/hooks/usePhoto";
 import { PhotoUploader } from "@/app/(dashboard)/(routes)/drive/_components/PhotoUploader";
 import "@testing-library/jest-dom/vitest";
-import FoodReview from "@/app/(dashboard)/(routes)/food/_components/FoodReview";
-import FoodList from "@/app/(dashboard)/(routes)/food/_components/FoodList";
+
 // Mock the usePhoto hook
 vi.mock("../../../../utils/hooks/usePhoto", () => ({
     usePhoto: vi.fn(),
