@@ -7,6 +7,7 @@ import { ValidRoutes } from '@/app/types/type-definitions';
 import { PhotoUploader } from '@/app/(dashboard)/(routes)/drive/_components/PhotoUploader';
 import { usePhoto } from '../../../../utils/hooks/usePhoto';
 import { PhotoList } from '@/app/(dashboard)/(routes)/drive/_components/PhotoList';
+import { User } from '@supabase/supabase-js';
 
 // Define the expected return type of usePhoto hook
 type UsePhotoReturnType = {
@@ -66,7 +67,7 @@ describe('PhotoManager Integration Tests', () => {
     });
 
     test('renders all components correctly', async () => {
-        render(<PhotoManager user={mockUser} />);
+        render(<PhotoManager user={mockUser as User} />);
         screen.debug();
         // Wait for the photo uploader to appear
         const photoUploader = await screen.findByTestId('photo-uploader');
@@ -81,7 +82,7 @@ describe('PhotoManager Integration Tests', () => {
     });
 
     test('renders photos from the hook', () => {
-        render(<PhotoManager user={mockUser} />);
+        render(<PhotoManager user={mockUser as User} />);
 
         expect(screen.getByTestId('photo-photo-1')).toBeInTheDocument();
         expect(screen.getByTestId('photo-photo-2')).toBeInTheDocument();
@@ -149,7 +150,7 @@ describe('PhotoManager Integration Tests', () => {
         }));
 
         // Render the component with a mock user object
-        render(<PhotoManager user={{ id: 'mock-user-id' }} />);
+        render(<PhotoManager user={{ id: 'mock-user-id' } as User} />);
 
         // Find the "Sort by Name" button and simulate the click
         const sortByNameButton = screen.getByText('Sort by Name');
@@ -205,7 +206,7 @@ describe('PhotoManager Integration Tests', () => {
             updatePhotoName: vi.fn(),
         }));
 
-        render(<PhotoManager user={mockUser} />);
+        render(<PhotoManager user={mockUser as User} />);
 
         // Find the input element inside the photo uploader
         const uploadInput = screen.getByTestId('photo-uploader').querySelector('input');

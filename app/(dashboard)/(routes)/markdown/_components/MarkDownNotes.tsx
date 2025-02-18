@@ -128,6 +128,7 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
             {/* Create New Note */}
             <div className="border p-4 rounded mb-4">
                 <input
+                    data-testid="title-input"
                     type="text"
                     placeholder="Title"
                     value={newTitle}
@@ -158,9 +159,10 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                     notes.map((note) => (
                         <div data-testid={`note-container-${note.id}`} key={note.id} className="border p-4 rounded mb-4 relative flex flex-col md:flex-row md:gap-4">
                             <div className="flex-1 w-full mb-4 md:mb-0 overflow-x-auto">
-                                <h2 className="font-bold text-lg">{note.title}</h2>
+                                <h2 data-testid="note-title" className="font-bold text-lg">{note.title}</h2>
                                 {editingNote === note.id ? (
                                     <textarea
+                                        data-testid="note-edit-textarea"
                                         ref={textareaRef}
                                         value={editedContent}
                                         onChange={(e) => setEditedContent(e.target.value)}
@@ -168,6 +170,7 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                                     />
                                 ) : previewStates.get(note.id) ? (
                                     <div
+                                        data-testid="note-preview"
                                         dangerouslySetInnerHTML={{ __html: renderMarkdown(note.content) }}
                                         className="prose prose-sm md:prose-base lg:prose-lg max-w-none overflow-x-auto"
                                     />
@@ -183,6 +186,7 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                                 {editingNote === note.id ? (
                                     <div className="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2">
                                         <button
+                                            data-testid="save-button"
                                             disabled={editedContent === originalContent}
                                             onClick={() => updateNote(note.id, editedContent)}
                                         >
@@ -218,10 +222,10 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                                         {/* Delete & Markdown Toggle Buttons - Hidden When Editing */}
                                         {!isEditing && (
                                             <>
-                                                <button onClick={() => deleteNote(note.id)}>
+                                                <button data-testid={`delete-button-${note.id}`} onClick={() => deleteNote(note.id)}>
                                                     <RiDeleteBin5Fill size={20} className="text-red-500 hover:text-red-700" />
                                                 </button>
-                                                <button onClick={() => togglePreview(note.id)}>
+                                                <button data-testid={`toggle-markdown-button-${note.id}`} onClick={() => togglePreview(note.id)}>
                                                     {previewStates.get(note.id) ? (
                                                         <TbMarkdownOff size={26} className="text-purple-500 hover:text-purple-700" />
                                                     ) : (

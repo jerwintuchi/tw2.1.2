@@ -46,7 +46,7 @@ export default function FoodList({ userId, photos, deletePhoto, updatePhotoName 
 
 
     return (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div data-testid="food-list" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {memoizedPhotos.map((photo) => (
                 <Card key={photo.id} className={`relative ${photo.isOwner ? "bg-slate-800" : "bg-white dark:bg-black"}`}>
                     <CardContent className="flex flex-col items-center p-4">

@@ -7,9 +7,10 @@ import { FaSortAlphaDown, FaSortNumericDown } from "react-icons/fa"
 import { PhotoUploader } from "./PhotoUploader";
 import { PhotoList } from "./PhotoList";
 import { usePhoto } from "../../../../../utils/hooks/usePhoto";
+import { User } from "@supabase/supabase-js";
 
 
-export default function PhotoManager({ user }: { user: any }) {
+export default function PhotoManager({ user }: { user: User }) {
     const {
         photos,
         uploading,
