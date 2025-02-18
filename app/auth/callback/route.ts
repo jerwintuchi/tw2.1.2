@@ -44,7 +44,7 @@ export async function GET(request: Request) {
           email: user.email!,
         },
       ]);
-
+ 
       if (insertError) {
         console.error("Profile insert error:", insertError.message);
         return NextResponse.redirect(
