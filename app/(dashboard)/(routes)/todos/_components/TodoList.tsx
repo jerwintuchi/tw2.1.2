@@ -28,6 +28,11 @@ export default function TodoList({ user }: TodoListProps) {
     }
   };
 
+  const handleAddTodo = async () => {
+    await addTodo(newTask);
+    setNewTask(""); // Reset the input field after adding the task
+  };
+
   return (
     <div className="flex flex-col gap-6 w-full max-w-full sm:max-w-md lg:max-w-lg mx-auto px-2 sm:px-4">
       <h2 className="text-xl font-bold text-center">Your To-Do List</h2>
@@ -41,7 +46,7 @@ export default function TodoList({ user }: TodoListProps) {
           onChange={(e) => setNewTask(e.target.value)}
           className="flex-1"
         />
-        <Button onClick={() => addTodo(newTask)} disabled={loading || newTask.trim() === ""} className="w-full sm:w-auto mt-2 sm:mt-0">
+        <Button onClick={handleAddTodo} disabled={loading || newTask.trim() === ""} className="w-full sm:w-auto mt-2 sm:mt-0">
           {loading ? "Adding..." : "Add"}
         </Button>
       </div>

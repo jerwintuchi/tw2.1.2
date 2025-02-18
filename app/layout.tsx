@@ -4,6 +4,7 @@ import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Header from "@/components/Header";
 import { defaultUrl } from "@/utils/config";
+import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
@@ -31,7 +32,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-
+          <Toaster
+            position="top-center"
+            reverseOrder={false}
+          />
           <main className="min-h-screen flex flex-col items-center w-full">
             <div className="flex-1 w-full flex flex-col gap-20 items-center">
               <Header />
