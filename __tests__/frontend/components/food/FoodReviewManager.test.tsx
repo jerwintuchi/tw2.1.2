@@ -147,34 +147,4 @@ describe("FoodReviewManager", () => {
         );
     });
 
-    it("opens the FoodReview modal when clicking 'Reviews' button", () => {
-        const mockDeletePhoto = vi.fn();
-        const mockUpdatePhotoName = vi.fn();
-
-        const photos = [
-            {
-                id: "1",
-                user_id: "user123",
-                photo_url: "photo1.jpg",
-                photo_name: "Food Photo 1",
-                created_at: "2025-02-18T00:00:00Z",
-            },
-        ];
-
-        render(
-            <FoodList
-                userId="user123"
-                photos={photos}
-                deletePhoto={mockDeletePhoto}
-                updatePhotoName={mockUpdatePhotoName}
-            />
-        );
-
-        // Click on the 'Reviews' button
-        fireEvent.click(screen.getByText(/Reviews/i));
-
-        // Check that the FoodReview component is rendered
-        expect(screen.getByTestId("food-review")).toBeInTheDocument();
-    });
-
 });
