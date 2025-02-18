@@ -34,7 +34,9 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
     const [newContent, setNewContent] = useState("");
     const [editingNote, setEditingNote] = useState<string | null>(null);
     const [editedContent, setEditedContent] = useState<string>("");
+    const [editedTitle, setEditedTitle] = useState<string>(""); // State for edited title
     const [originalContent, setOriginalContent] = useState<string>("");
+    const [originalTitle, setOriginalTitle] = useState<string>(""); // State for original title
     const [isEditing, setIsEditing] = useState<boolean>(false);
 
     // Track preview state per note
@@ -89,10 +91,13 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
         }
     }
 
-    async function updateNote(id: string, content: string) {
-        if (content === originalContent) return; // Prevent unnecessary updates
+    async function updateNote(id: string, content: string, title: string) {
+        if (content === originalContent && title === originalTitle) return; // Prevent unnecessary updates
 
-        const { error } = await supabase.from("markdown_notes").update({ content }).eq("id", id);
+        const { error } = await supabase
+            .from("markdown_notes")
+            .update({ content, title })
+            .eq("id", id);
         if (error) console.error(error);
         else {
             setEditingNote(null);
@@ -158,16 +163,26 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                 ) : (
                     notes.map((note) => (
                         <div data-testid={`note-container-${note.id}`} key={note.id} className="border p-4 rounded mb-4 relative flex flex-col md:flex-row md:gap-4">
+                            {/* Note Content */}
                             <div className="flex-1 w-full mb-4 md:mb-0 overflow-x-auto">
-                                <h2 data-testid="note-title" className="font-bold text-lg">{note.title}</h2>
+                                {/* Display the title for each note */}
+                                <h2 data-testid="note-title" className="font-bold text-lg text-center pb-2">{note.title}</h2>
                                 {editingNote === note.id ? (
-                                    <textarea
-                                        data-testid="note-edit-textarea"
-                                        ref={textareaRef}
-                                        value={editedContent}
-                                        onChange={(e) => setEditedContent(e.target.value)}
-                                        className="w-full p-2 border rounded mt-2 min-h-[150px] md:min-h-[200px] resize-none"
-                                    />
+                                    <>
+                                        <input
+                                            type="text"
+                                            value={editedTitle}
+                                            onChange={(e) => setEditedTitle(e.target.value)}
+                                            className="w-full p-2 border rounded mb-2"
+                                        />
+                                        <textarea
+                                            data-testid="note-edit-textarea"
+                                            ref={textareaRef}
+                                            value={editedContent}
+                                            onChange={(e) => setEditedContent(e.target.value)}
+                                            className="w-full p-2 border rounded mt-2 min-h-[150px] md:min-h-[200px] resize-none"
+                                        />
+                                    </>
                                 ) : previewStates.get(note.id) ? (
                                     <div
                                         data-testid="note-preview"
@@ -187,18 +202,19 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                                     <div className="flex flex-row md:flex-col space-x-2 md:space-x-0 md:space-y-2">
                                         <button
                                             data-testid="save-button"
-                                            disabled={editedContent === originalContent}
-                                            onClick={() => updateNote(note.id, editedContent)}
+                                            disabled={editedContent === originalContent && editedTitle === originalTitle}
+                                            onClick={() => updateNote(note.id, editedContent, editedTitle)}
                                         >
                                             <MdSaveAs
                                                 size={24}
-                                                className={`${isEditing && editedContent === originalContent ? "cursor-not-allowed text-gray-500" : "cursor-pointer text-green-500 hover:text-green-700"}`}
+                                                className={`${isEditing && editedContent === originalContent && editedTitle === originalTitle ? "cursor-not-allowed text-gray-500" : "cursor-pointer text-green-500 hover:text-green-700"}`}
                                             />
                                         </button>
                                         <button
                                             onClick={() => {
                                                 setEditingNote(null);
                                                 setEditedContent(originalContent);
+                                                setEditedTitle(originalTitle);
                                                 setIsEditing(false);
                                             }}
                                         >
@@ -211,7 +227,9 @@ export default function MarkdownNotes({ user }: MarkdownNotesProps) {
                                             data-testid={`edit-button-${note.id}`}
                                             onClick={() => {
                                                 setOriginalContent(note.content);
+                                                setOriginalTitle(note.title);
                                                 setEditedContent(note.content);
+                                                setEditedTitle(note.title);
                                                 setEditingNote(note.id);
                                                 setIsEditing(true);
                                             }}
