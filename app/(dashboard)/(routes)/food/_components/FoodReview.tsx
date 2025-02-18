@@ -200,6 +200,8 @@ export default function FoodReview({ foodPhotoId, userId, close }: FoodReviewPro
                                         </>
                                     ) : (
                                         <button
+                                            data-testid={`edit-review-${review.id}`}
+                                            aria-label={`Edit review for ${review.username}`}   
                                             onClick={() => {
                                                 setEditingReviewId(review.id);
                                                 setEditedReview(review.review);

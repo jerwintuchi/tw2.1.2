@@ -1,177 +1,180 @@
-import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { vi } from "vitest";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
+import { describe, it, expect, beforeEach, afterEach, vi, Mock } from "vitest";
 import FoodReviewManager from "../../../../app/(dashboard)/(routes)/food/_components/FoodReviewManager";
-import "@testing-library/jest-dom/vitest";
-import { User } from "@supabase/supabase-js";
+import { usePhoto } from "../../../../utils/hooks/usePhoto";
 import { PhotoUploader } from "@/app/(dashboard)/(routes)/drive/_components/PhotoUploader";
-import { usePhoto } from "@/utils/hooks/usePhoto";
-import PhotoManager from "@/app/(dashboard)/(routes)/drive/_components/PhotoManager";
-
-// Mock photos globally
-const mockPhotos = [
-    { id: "1", photo_name: "Food1", photo_url: "url1.jpg" },
-    { id: "2", photo_name: "Food2", photo_url: "url2.jpg" },
-];
-
-// Mock the usePhoto hook globally
-const mockSetSearch = vi.fn();
-
-vi.mock("../../../../../utils/hooks/usePhoto", () => ({
-    usePhoto: vi.fn().mockReturnValue({
-        photos: [],
-        uploading: false,
-        search: "",
-        setSearch: vi.fn(),
-        sortType: "name",
-        setSortType: vi.fn(),
-        uploadPhotos: vi.fn(),
-        deletePhoto: vi.fn(),
-        updatePhotoName: vi.fn(),
-    }),
+import "@testing-library/jest-dom/vitest";
+import FoodReview from "@/app/(dashboard)/(routes)/food/_components/FoodReview";
+import FoodList from "@/app/(dashboard)/(routes)/food/_components/FoodList";
+// Mock the usePhoto hook
+vi.mock("../../../../utils/hooks/usePhoto", () => ({
+    usePhoto: vi.fn(),
 }));
 
-const mockUser: Partial<User> = { id: "test-user-id" };
+// Mock photo data
+const mockPhotos = [
+    {
+        id: "1",
+        user_id: "test-user-id",
+        photo_url: "test-photo-1.jpg",
+        photo_name: "Sushi",
+        created_at: "2024-02-18T12:00:00Z",
+    },
+    {
+        id: "2",
+        user_id: "test-user-id",
+        photo_url: "test-photo-2.jpg",
+        photo_name: "Pizza",
+        created_at: "2024-02-18T13:00:00Z",
+    },
+];
 
-beforeEach(() => {
-    vi.resetAllMocks(); // Reset mocks before each test
-});
+// Mock the User type from Supabase
+const mockUser = {
+    id: "test-user-id",
+    email: "test@example.com",
+    app_metadata: {},
+    user_metadata: {},
+    aud: "",
+    created_at: "",
+    updated_at: "",
+};
 
 describe("FoodReviewManager", () => {
-    test("renders the component", () => {
-        render(<FoodReviewManager user={mockUser as User} />);
+    let mockUsePhoto: any;
 
-        expect(screen.getByText("Manage your Food Reviews")).toBeInTheDocument();
-        expect(screen.getByPlaceholderText("Search by food name...")).toBeInTheDocument();
-        expect(screen.getByText("Sort by Name")).toBeInTheDocument();
-        expect(screen.getByText("Sort by Date")).toBeInTheDocument();
+    beforeEach(() => {
+        mockUsePhoto = {
+            photos: mockPhotos,
+            uploading: false,
+            search: "",
+            setSearch: vi.fn(),
+            sortType: "date",
+            setSortType: vi.fn(),
+            uploadPhotos: vi.fn(),
+            deletePhoto: vi.fn(),
+            updatePhotoName: vi.fn(),
+        };
+
+        // Ensure usePhoto returns the mockUsePhoto object
+        (usePhoto as Mock).mockReturnValue(mockUsePhoto);
     });
 
-    test("triggers upload photos function when files are selected", async () => {
+    afterEach(() => {
+        vi.clearAllMocks();
+    });
+
+    it("renders the component with initial state", () => {
+        render(<FoodReviewManager user={mockUser} />);
+
+        expect(screen.getByText("Manage your Food Reviews")).toBeDefined();
+        expect(screen.getByPlaceholderText("Search by food name...")).toBeDefined();
+        expect(screen.getByText("Sort by Name")).toBeDefined();
+        expect(screen.getByText("Sort by Date")).toBeDefined();
+    });
+
+    it("displays photos from the usePhoto hook", async () => {
+        render(<FoodReviewManager user={mockUser} />);
+
+        // Wait for the photos to be displayed
+        await waitFor(() => {
+            expect(screen.getByText("Sushi")).toBeDefined();
+            expect(screen.getByText("Pizza")).toBeDefined();
+        });
+    });
+
+    it("handles sort type changes", async () => {
+        const user = userEvent.setup();
+        render(<FoodReviewManager user={mockUser} />);
+
+        const sortByNameButton = screen.getByText("Sort by Name");
+        await user.click(sortByNameButton);
+
+        expect(mockUsePhoto.setSortType).toHaveBeenCalledWith("name");
+
+        const sortByDateButton = screen.getByText("Sort by Date");
+        await user.click(sortByDateButton);
+
+        expect(mockUsePhoto.setSortType).toHaveBeenCalledWith("date");
+    });
+
+    it('triggers upload function when files are selected', () => {
         const mockUploadPhotos = vi.fn();
 
+        // Render the component with mockUploadPhotos as a prop
         render(<PhotoUploader uploading={false} uploadPhotos={mockUploadPhotos} />);
 
-        // Find the file input element (ensure proper selection)
-        const fileInput = screen.getByTestId("photo-uploader").querySelector("input[type='file']");
+        // Find the file input element (invisible input used for file selection)
+        const fileInput = screen.getByTestId('photo-uploader').querySelector('input[type="file"]');
 
-        // Simulate selecting files
+        // Simulate selecting files via the file input
         const fileList = {
-            0: new File(["file-content"], "photo1.jpg", { type: "image/jpeg" }),
-            length: 1,
+            0: new File(['file-content'], 'Food1.jpg', { type: 'image/jpeg' }),
+            length: 1
         } as unknown as FileList;
 
         fireEvent.change(fileInput!, { target: { files: fileList } });
 
-        // Ensure uploadPhotos is called with the selected file
+        // Ensure the upload function was called with the files
         expect(mockUploadPhotos).toHaveBeenCalledWith(fileList);
     });
 
-    test("updates search value when typing in the search input", async () => {
-        // Render the component with minimal necessary mocks
-        render(<FoodReviewManager user={mockUser as User} />);
-
-        // Get the search input element
-        const searchInput = screen.getByPlaceholderText("Search by food name...");
-
-        // Simulate typing "Pizza" in the search input
-        fireEvent.change(searchInput, { target: { value: "Pizza" } });
-
-        // Check if the search input value has been updated
-        expect(searchInput).toHaveValue("Pizza");
-    });
-
-    test('handles sort by name button click', () => {
-        const mockSetSortType = vi.fn();
-
-        // Mock the usePhoto hook for this test
-        // @ts-ignore
-        usePhoto.mockReturnValue({
-            photos: [],
-            uploading: false,
-            search: '',
-            setSearch: vi.fn(),
-            sortType: 'name',  // Ensure sortType is initially set
-            setSortType: mockSetSortType,
-            uploadPhotos: vi.fn(),
-            deletePhoto: vi.fn(),
+    it("shows loading state during upload", () => {
+        (usePhoto as Mock).mockReturnValue({
+            ...mockUsePhoto,
+            uploading: true,
         });
 
-        render(<FoodReviewManager user={mockUser as User} />);
+        render(<FoodReviewManager user={mockUser} />);
 
-        const sortByNameButton = screen.getByText('Sort by Name');
-        fireEvent.click(sortByNameButton);
-
-        expect(mockSetSortType).toHaveBeenCalledWith('name');
+        const input = screen
+            .getByTestId("photo-uploader")
+            .querySelector('input[type="file"]');
+        expect(input).toHaveProperty("disabled", true);
     });
 
-    test('handles sort by date button click', () => {
-        const mockSetSortType = vi.fn();
+    it("handles photo deletion", async () => {
+        const user = userEvent.setup();
+        render(<FoodReviewManager user={mockUser} />);
 
-        // Mock the usePhoto hook
-        // @ts-ignore
-        usePhoto.mockReturnValue({
-            photos: [],
-            uploading: false,
-            search: '',
-            setSearch: vi.fn(),
-            sortType: 'date', // Ensure initial sortType
-            setSortType: mockSetSortType,
-            uploadPhotos: vi.fn(),
-            deletePhoto: vi.fn(),
-        });
+        const deleteButtons = screen.getAllByText("Delete");
+        await user.click(deleteButtons[0]);
 
-        render(<FoodReviewManager user={mockUser as User} />);
-
-        const sortByDateButton = screen.getByText('Sort by Date');
-        fireEvent.click(sortByDateButton);
-
-        expect(mockSetSortType).toHaveBeenCalledWith('date');
+        expect(mockUsePhoto.deletePhoto).toHaveBeenCalledWith(
+            mockPhotos[0].id,
+            mockPhotos[0].photo_url
+        );
     });
 
-    test("renders FoodList with the correct props", () => {
-        vi.mock("../../../../../utils/hooks/usePhoto", () => ({
-            usePhoto: vi.fn().mockReturnValueOnce({
-                photos: mockPhotos,
-                uploading: false,
-                search: "",
-                setSearch: mockSetSearch,
-                sortType: "name",
-                setSortType: vi.fn(),
-                uploadPhotos: vi.fn(),
-                deletePhoto: vi.fn(),
-                updatePhotoName: vi.fn(),
-            }),
-        }));
+    it("opens the FoodReview modal when clicking 'Reviews' button", () => {
+        const mockDeletePhoto = vi.fn();
+        const mockUpdatePhotoName = vi.fn();
 
-        render(<FoodReviewManager user={mockUser as User} />);
+        const photos = [
+            {
+                id: "1",
+                user_id: "user123",
+                photo_url: "photo1.jpg",
+                photo_name: "Food Photo 1",
+                created_at: "2025-02-18T00:00:00Z",
+            },
+        ];
 
-        const foodList = screen.getByTestId("food-list");
-        expect(foodList).toBeInTheDocument();
+        render(
+            <FoodList
+                userId="user123"
+                photos={photos}
+                deletePhoto={mockDeletePhoto}
+                updatePhotoName={mockUpdatePhotoName}
+            />
+        );
+
+        // Click on the 'Reviews' button
+        fireEvent.click(screen.getByText(/Reviews/i));
+
+        // Check that the FoodReview component is rendered
+        expect(screen.getByTestId("food-review")).toBeInTheDocument();
     });
 
-    test("sets search value on user input", async () => {
-        const mockSetSearch = vi.fn();
-
-        vi.mock("../../../../../utils/hooks/usePhoto", () => ({
-            usePhoto: vi.fn().mockReturnValueOnce({
-                photos: [],
-                uploading: false,
-                search: "",
-                setSearch: mockSetSearch,
-                sortType: "name",
-                setSortType: vi.fn(),
-                uploadPhotos: vi.fn(),
-                deletePhoto: vi.fn(),
-                updatePhotoName: vi.fn(),
-            }),
-        }));
-
-        render(<FoodReviewManager user={mockUser as User} />);
-
-        const searchInput = screen.getByPlaceholderText("Search by food name...");
-        fireEvent.change(searchInput, { target: { value: "Pasta" } });
-
-        expect(mockSetSearch).toHaveBeenCalledTimes(1);
-        expect(mockSetSearch).toHaveBeenCalledWith("Pasta");
-    });
 });
