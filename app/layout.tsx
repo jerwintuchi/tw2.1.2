@@ -3,10 +3,7 @@ import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import "./globals.css";
 import Header from "@/components/Header";
-
-export const defaultUrl = process.env.VERCEL_URL
-  ? `https://${process.env.VERCEL_URL}`
-  : "http://localhost:3000";
+import { defaultUrl } from "@/utils/config";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
