@@ -4,6 +4,7 @@ import { encodedRedirect } from "@/utils/utils";
 import { createClient } from "@/utils/supabase/server";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
+import { getURL } from "@/utils/config";
 
 export const signUpAction = async (formData: FormData) => {
   const username = formData.get("username")?.toString();
@@ -109,7 +110,7 @@ export const signUpAction = async (formData: FormData) => {
     email,
     password,
     options: {
-      emailRedirectTo: `${origin}/auth/callback`,
+      emailRedirectTo: getURL() + "/auth/callback",
       data: { username },
     },
   });
