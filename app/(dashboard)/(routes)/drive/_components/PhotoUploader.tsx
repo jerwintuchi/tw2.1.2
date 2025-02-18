@@ -1,38 +1,78 @@
-"use client"
-import { useRef, useState } from "react"
-import { UploadCloud } from "lucide-react"
-import type React from "react" // Added import for React
+"use client";
+import { useRef, useState } from "react";
+import { UploadCloud } from "lucide-react";
+import { showPromiseToast } from "@/components/toasts/PromiseToast";
+import type React from "react";
+import showErrorToast from "@/components/toasts/ErrorToast";
 
 interface PhotoUploaderProps {
-    uploading: boolean
-    uploadPhotos: (files: FileList) => Promise<void>
+    uploading: boolean;
+    uploadPhotos: (files: FileList) => Promise<void>;
 }
 
-export const PhotoUploader: React.FC<PhotoUploaderProps> = ({ uploading, uploadPhotos }) => {
-    const inputRef = useRef<HTMLInputElement>(null)
-    const [dragActive, setDragActive] = useState(false)
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // Maximum file size 5MB
+
+export const PhotoUploader: React.FC<PhotoUploaderProps> = ({
+    uploading,
+    uploadPhotos,
+}) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const [dragActive, setDragActive] = useState(false);
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files.length > 0) {
-            uploadPhotos(e.target.files)
-            e.target.value = "" // Reset input after uploading
+            const files = e.target.files;
+            // Check if any file exceeds the size limit
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > MAX_FILE_SIZE) {
+                    showErrorToast({ message: "File size exceeds the 5MB limit!" }); // Show error toast for file size exceed
+                    return;
+                }
+            }
+
+            // Call uploadPhotos only once after validation
+            showPromiseToast(uploadPhotos(files), {
+                loading: "Uploading...",
+                success: "Photos uploaded successfully!",
+                error: "Error in uploading photos",
+            });
+
+            e.target.value = ""; // Reset input after uploading
         }
-    }
+    };
 
     const handleDrag = (e: React.DragEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setDragActive(e.type === "dragenter" || e.type === "dragover")
-    }
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(e.type === "dragenter" || e.type === "dragover");
+    };
 
     const handleDrop = (e: React.DragEvent) => {
-        e.preventDefault()
-        e.stopPropagation()
-        setDragActive(false)
+        e.preventDefault();
+        e.stopPropagation();
+        setDragActive(false);
         if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-            uploadPhotos(e.dataTransfer.files)
+            const files = e.dataTransfer.files;
+            // Check if any file exceeds the size limit
+            for (let i = 0; i < files.length; i++) {
+                if (files[i].size > MAX_FILE_SIZE) {
+                    showErrorToast({ message: "File size exceeds the 5MB limit!" }); // Show error toast for file size exceed
+                    return;
+                }
+            }
+            // Reset input after uploading
+            if (inputRef.current) {
+                inputRef.current.value = "";
+            }
+
+            // Call uploadPhotos only once after validation
+            showPromiseToast(uploadPhotos(files), {
+                loading: "Uploading...",
+                success: "",
+                error: "Error in uploading photos",
+            });
         }
-    }
+    };
 
     return (
         <div
@@ -59,6 +99,5 @@ export const PhotoUploader: React.FC<PhotoUploaderProps> = ({ uploading, uploadP
                 multiple
             />
         </div>
-    )
-}
-
+    );
+};

@@ -1,8 +1,11 @@
 "use client";
 import { ValidRoutes } from "@/app/types/type-definitions";
+import showErrorToast from "@/components/toasts/ErrorToast";
+import { showPromiseToast } from "@/components/toasts/PromiseToast";
+import showSuccessToast from "@/components/toasts/SuccessToast";
 import { useState, useEffect } from "react";
 
-interface Photo {
+export interface Photo {
   id: string;
   user_id: string;
   photo_url: string;
@@ -28,6 +31,7 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
         setPhotos(data);
       } catch (error) {
         console.error("Error fetching photos:", error);
+        showErrorToast({ message: "Failed to load photos!" });
       }
     };
 
@@ -42,23 +46,23 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
     try {
       setUploading(true);
       const formData = new FormData();
-
       formData.append("userId", userId);
 
       const existingPhotoNames = new Set(
         photos.map((photo) => photo.photo_name)
       );
-
       const filteredFiles = Array.from(files).filter(
-        (file) => !existingPhotoNames.has(file.name) // Prevent duplicate name uploads
+        (file) => !existingPhotoNames.has(file.name)
       );
 
       if (filteredFiles.length === 0) {
-        alert("That file(s) is already uploaded.");
+        // Show error toast only for already uploaded files
+        showErrorToast({ message: "That file(s) is already uploaded." });
         setUploading(false);
-        return;
+        return; // Exit early to prevent success toast from being shown
       }
 
+      // Proceed to upload the filtered files
       filteredFiles.forEach((file) => {
         formData.append("files", file);
       });
@@ -72,9 +76,12 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
 
       const data = await response.json();
       const newPhotos = data as Photo[];
-      setPhotos((prev) => [...newPhotos, ...prev]);
+
+      setPhotos((prev) => [...newPhotos, ...prev]); // Update photos state with new photos
+      showSuccessToast({ message: "Photos uploaded successfully!" });
     } catch (error: any) {
-      alert(error.message);
+      console.error("Error uploading photos:", error);
+      showErrorToast({ message: error.message });
     } finally {
       setUploading(false);
     }
@@ -89,12 +96,16 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
         }
       );
 
-      if (!response.ok) console.log("Failed to delete photo");
+      if (!response.ok) {
+        showErrorToast({ message: "Failed to delete photo" });
+        return;
+      }
 
       setPhotos((prev) => prev.filter((photo) => photo.id !== id));
+      showSuccessToast({ message: "Photo deleted successfully" });
     } catch (error: any) {
       console.error("Error deleting photo:", error);
-      alert(error.message);
+      showErrorToast({ message: error.message });
     }
   };
 
@@ -111,7 +122,10 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
         }
       );
 
-      if (!response.ok) console.log("Failed to update photo name");
+      if (!response.ok) {
+        showErrorToast({ message: "Failed to update photo name" });
+        return;
+      }
 
       setPhotos((prev) =>
         prev.map((photo) =>
@@ -120,7 +134,7 @@ export function usePhoto(userId: string, apiRoute: ValidRoutes) {
       );
     } catch (error: any) {
       console.error("Error updating photo name:", error);
-      alert(error.message);
+      showErrorToast({ message: error.message });
     }
   };
 
