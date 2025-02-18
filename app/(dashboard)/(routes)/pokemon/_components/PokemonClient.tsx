@@ -32,7 +32,7 @@ export default function PokemonPage({ user }: PokemonClientProps) {
         addReview,
         deleteReview,
     } = usePokemonReviews(user);
-    
+
     return (
         <div className="flex flex-col md:flex-row justify-center items-start gap-8 p-8 max-w-4xl mx-auto bg-red-600 min-h-screen border-8 border-black rounded-lg shadow-lg relative">
 
