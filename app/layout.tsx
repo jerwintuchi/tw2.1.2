@@ -8,8 +8,8 @@ import { Toaster } from "react-hot-toast";
 
 export const metadata = {
   metadataBase: new URL(defaultUrl),
-  title: "Next.js and Supabase Starter Kit",
-  description: "The fastest way to build apps with Next.js and Supabase",
+  title: "TW2.1.2",
+  description: "Technical Worksheet 2.1.2",
 };
 
 
