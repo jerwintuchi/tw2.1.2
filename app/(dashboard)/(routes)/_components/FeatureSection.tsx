@@ -49,7 +49,7 @@ const FeatureSection = () => {
                     <h3 className="text-xl font-semibold mb-4">Pokemon Reviews</h3>
                     <p>
                         Explore and review Pokemon! Search by Pokemon name, add reviews, and sort
-                        photos by name or upload date.
+                        reviews by name or upload date.
                     </p>
                 </div>
 
