@@ -66,7 +66,7 @@ describe('PhotoManager Integration Tests', () => {
         vi.clearAllMocks();
     });
 
-    test('renders all components correctly', async () => {  
+    test('renders all components correctly', async () => {
         render(<PhotoManager user={mockUser as User} />);
         screen.debug();
         // Wait for the photo uploader to appear
